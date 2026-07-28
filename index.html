@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rx Pad — Prescription Writer</title>
+<script>(function(){try{var t=localStorage.getItem('rxp_theme')||'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--ink:#1a1523; --muted:#6b6478; --faint:#a29cb3; --line:#e8e3f2; --paper:#ffffff; --bg:#f3f0fa;
+--teal:#0d9488; --tealS:#ccfbf1; --tealD:#0f5f57; --tealGrad:linear-gradient(135deg,#0d9488,#0891b2);
+--rose:#e11d48; --roseS:#ffe4ea; --roseD:#9f1239; --roseGrad:linear-gradient(135deg,#e11d48,#db2777);
+--amber:#d97706; --amberS:#fef3c7; --amberD:#8a4d0a; --amberGrad:linear-gradient(135deg,#d97706,#ea580c);
+--indigo:#4f46e5; --indigoS:#e6e3fb; --indigoD:#3730a3; --indigoGrad:linear-gradient(135deg,#4f46e5,#7c3aed);
+--sky:#0284c7; --skyS:#e0f2fe; --skyD:#075985; --skyGrad:linear-gradient(135deg,#0284c7,#2563eb);
+--violet:#7c3aed; --violetS:#f0eafd; --violetD:#5b21b6; --violetGrad:linear-gradient(135deg,#7c3aed,#a21caf);
+--green:#16a34a; --greenS:#dcfce7; --greenD:#166534; --greenGrad:linear-gradient(135deg,#16a34a,#0d9488);
+--gold:#d4af37;
+--r:14px;
+--shadow-sm:0 1px 3px rgba(76,29,149,.06),0 1px 2px rgba(76,29,149,.05);
+--shadow-md:0 4px 14px rgba(76,29,149,.09),0 2px 4px rgba(76,29,149,.06);
+--shadow-lg:0 12px 32px rgba(76,29,149,.14),0 4px 10px rgba(76,29,149,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);background-image:radial-gradient(circle at 15% 0%,rgba(124,58,237,.05),transparent 40%),radial-gradient(circle at 85% 15%,rgba(13,148,136,.05),transparent 40%);background-attachment:fixed;color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,.brand h1{font-family:"Outfit",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 60px}
+
+/* ---------- header ---------- */
+.hdr{background:linear-gradient(120deg,#4c1d95,#5b21b6 45%,#0d9488);color:#fff;padding:18px 0;margin-bottom:0;box-shadow:0 4px 20px rgba(76,29,149,.25)}
+.hdr-in{max-width:1180px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.brand h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.brand p{font-size:11.5px;opacity:.85;font-weight:500}
+.hdr-doc{font-size:12px;text-align:right;opacity:.95}
+
+/* ---------- nav ---------- */
+.nav{background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;box-shadow:var(--shadow-sm)}
+.nav-in{max-width:1180px;margin:0 auto;padding:8px 16px;display:flex;gap:4px;overflow-x:auto}
+.nb{padding:10px 16px;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:10px;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s}
+.nb:hover{color:var(--violetD);background:var(--violetS)}
+.nb.on{color:#fff;background:var(--violetGrad);box-shadow:0 3px 10px rgba(124,58,237,.35)}
+.nb .ico{font-size:15px}
+
+.pg{display:none;padding-top:20px}
+.pg.on{display:block}
+
+/* ---------- cards ---------- */
+.card{background:var(--paper);border-radius:16px;border:1px solid var(--line);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-md);transition:box-shadow .2s}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card-hd{padding:13px 18px;display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;letter-spacing:.2px;font-family:"Outfit",sans-serif}
+.card-bd{padding:18px}
+.c-teal .card-hd{background:var(--tealGrad);color:#fff}
+.c-rose .card-hd{background:var(--roseGrad);color:#fff}
+.c-amber .card-hd{background:var(--amberGrad);color:#fff}
+.c-indigo .card-hd{background:var(--indigoGrad);color:#fff}
+.c-sky .card-hd{background:var(--skyGrad);color:#fff}
+.c-violet .card-hd{background:var(--violetGrad);color:#fff}
+.c-green .card-hd{background:var(--greenGrad);color:#fff}
+.card-hd .n{margin-left:auto;font-size:11px;font-weight:600;opacity:.9;background:rgba(255,255,255,.2);padding:2px 9px;border-radius:20px}
+
+/* ---------- forms ---------- */
+label,.lb{display:block;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+input,select,textarea{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fdfcff;color:var(--ink);font-size:13.5px;font-family:inherit;outline:none;transition:all .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.12);background:#fff}
+textarea{resize:vertical;min-height:62px;line-height:1.55}
+.fg{margin-bottom:11px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:11px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px}
+.g5{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px}
+
+/* ---------- buttons ---------- */
+.btn{padding:9px 16px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .15s;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:scale(.97) translateY(0)}
+.bt{background:var(--tealGrad);color:#fff}.bt:hover{box-shadow:0 6px 16px rgba(13,148,136,.35)}
+.bs{background:var(--skyGrad);color:#fff}.bs:hover{box-shadow:0 6px 16px rgba(2,132,199,.35)}
+.bv{background:var(--violetGrad);color:#fff}.bv:hover{box-shadow:0 6px 16px rgba(124,58,237,.35)}
+.ba{background:var(--amberGrad);color:#fff}.ba:hover{box-shadow:0 6px 16px rgba(217,119,6,.35)}
+.br{background:var(--roseGrad);color:#fff}.br:hover{box-shadow:0 6px 16px rgba(225,29,72,.35)}
+.bg{background:var(--greenGrad);color:#fff}.bg:hover{box-shadow:0 6px 16px rgba(22,163,74,.35)}
+.bo{background:#fff;color:var(--muted);border:1.5px solid var(--line);box-shadow:none}.bo:hover{border-color:var(--violet);color:var(--violetD);box-shadow:var(--shadow-sm)}
+.bxs{padding:4px 8px;font-size:11px;border-radius:7px}
+.bsm{padding:6px 11px;font-size:12px}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap}
+
+/* ---------- tags ---------- */
+.tag{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 7px 5px 13px;font-size:12.5px;font-weight:600;margin:3px 3px 3px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.tag .x{cursor:pointer;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;background:rgba(255,255,255,.6)}
+.tag .x:hover{background:#fff}
+.t-rose{background:var(--roseGrad);color:#fff}
+.t-sky{background:var(--skyGrad);color:#fff}
+.tagbox{min-height:36px;padding:4px;border:1.5px dashed #d8cdf0;border-radius:12px;margin-bottom:9px;background:linear-gradient(135deg,#fbfaff,#f7f3ff)}
+.tagbox:empty::before{content:"Nothing added yet — search below to add";color:var(--faint);font-size:12px;padding:7px 9px;display:block}
+
+/* ---------- autocomplete ---------- */
+.ac{position:relative}
+.ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--violet);border-top:none;border-radius:0 0 10px 10px;z-index:100;max-height:230px;overflow-y:auto;box-shadow:var(--shadow-lg);display:none}
+.ac-drop.on{display:block}
+.ac-i{padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f4f0fb}
+.ac-i:hover,.ac-i.sel{background:var(--violetS)}
+.ac-i .s{font-size:11px;color:var(--muted);margin-top:1px}
+.ac-i .cat{float:right;font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase}
+
+/* ---------- rows ---------- */
+.row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 13px;background:linear-gradient(135deg,#f4fffb,#eefdf9);border-left:4px solid var(--teal);border-radius:0 10px 10px 0;margin-bottom:8px;box-shadow:0 1px 3px rgba(13,148,136,.08)}
+.row.blue{border-left-color:var(--sky);background:linear-gradient(135deg,#f2faff,#eaf6ff);box-shadow:0 1px 3px rgba(2,132,199,.08)}
+.row-t{font-weight:700;font-size:13.5px}
+.row-s{font-size:12px;color:var(--muted);margin-top:2px}
+.row-acts{display:flex;gap:5px;flex-shrink:0}
+.libitem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:7px;background:#fff;transition:all .15s}
+.libitem:hover{border-color:var(--violet);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+
+/* ---------- badges ---------- */
+.bdg{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.b-teal{background:var(--tealS);color:var(--tealD)}
+.b-rose{background:var(--roseS);color:var(--roseD)}
+.b-amber{background:var(--amberS);color:var(--amberD)}
+.b-indigo{background:var(--indigoS);color:var(--indigoD)}
+.b-sky{background:var(--skyS);color:var(--skyD)}
+.b-violet{background:var(--violetS);color:var(--violetD)}
+.b-green{background:var(--greenS);color:var(--greenD)}
+.b-gray{background:#f1eef8;color:var(--muted)}
+
+/* ---------- AI ---------- */
+.ai-panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,#faf8ff,#f5f0fd);padding:0;margin-top:14px;overflow:hidden;box-shadow:var(--shadow-md)}
+.ai-hd{background:var(--violetGrad);color:#fff;padding:12px 17px;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px;font-family:"Outfit",sans-serif}
+.ai-bd{padding:17px}
+.ai-grp{margin-bottom:15px}
+.ai-grp:last-child{margin-bottom:0}
+.ai-gt{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:22px;font-size:12.5px;margin:3px 4px 3px 0;cursor:pointer;border:1.5px solid;background:#fff;transition:all .15s;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.chip .plus{font-weight:800;font-size:14px;opacity:.6}
+.chip.dx{border-color:var(--violet);color:var(--violetD)}
+.chip.dx:hover{background:var(--violetS)}
+.chip.dr{border-color:var(--teal);color:var(--tealD)}
+.chip.dr:hover{background:var(--tealS)}
+.chip.iv{border-color:var(--sky);color:var(--skyD)}
+.chip.iv:hover{background:var(--skyS)}
+.chip.done{opacity:.45;cursor:default;background:#f1eef8;border-color:var(--line);color:var(--faint)}
+.chip.done:hover{transform:none;box-shadow:none;background:#f1eef8}
+.chip .lk{font-size:10px;font-weight:800;padding:1px 6px;border-radius:10px}
+.lk-h{background:#fee2e2;color:#991b1b}
+.lk-m{background:#fef3c7;color:#92400e}
+.lk-l{background:#f1eef8;color:var(--muted)}
+.chip .why{font-weight:400;font-size:11.5px;opacity:.8}
+.ai-note{background:#fff;border-left:3px solid var(--violet);border-radius:0 10px 10px 0;padding:11px 14px;font-size:12.5px;color:var(--violetD);margin-top:4px;box-shadow:var(--shadow-sm)}
+.ai-empty{text-align:center;padding:22px;color:var(--faint);font-size:13px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- vitals ---------- */
+.vital{background:linear-gradient(135deg,#f2faff,#eaf6ff);border:1.5px solid #d3ecfb;border-radius:12px;padding:9px 11px}
+.vital label{margin-bottom:2px;font-size:9.5px}
+.vital input{border:none;padding:0;font-size:15px;font-weight:700;background:none;color:var(--skyD)}
+.vital input:focus{box-shadow:none}
+.vital .u{font-size:10px;color:var(--faint);font-weight:600}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(90px);background:linear-gradient(135deg,#1a1523,#3d3352);color:#fff;padding:12px 22px;border-radius:24px;font-size:13px;font-weight:600;z-index:9999;transition:transform .25s;box-shadow:0 10px 28px rgba(0,0,0,.3)}
+#toast.on{transform:translateX(-50%) translateY(0)}
+
+/* ---------- empty ---------- */
+.empty{text-align:center;padding:26px;color:var(--faint);font-size:13px}
+.empty .e{font-size:30px;display:block;margin-bottom:6px;opacity:.5}
+
+/* ---------- sticky actions ---------- */
+.actions{position:sticky;bottom:0;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:14px 18px;border-radius:18px 18px 0 0;box-shadow:0 -6px 20px rgba(76,29,149,.1);display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:18px;z-index:40}
+.actions .sp{margin-left:auto;font-size:12px;color:var(--muted)}
+
+/* ---------- print sheet ---------- */
+#sheet{display:none}
+.rxp{background:#fff;color:#1a1523;padding:0 0 40px;font-family:Georgia,"Times New Roman",serif;max-width:820px;margin:0 auto;position:relative}
+.rxp-plaques{display:flex;gap:14px;margin-bottom:0}
+.rxp-plaque{flex:1;padding:16px 22px;color:#fff;position:relative}
+.rxp-plaque.doc{background:linear-gradient(120deg,#0d9488,#0369a1);border-radius:0 0 34px 0}
+.rxp-plaque.hosp{background:linear-gradient(120deg,#4c1d95,#1e3a8a);border-radius:0 0 0 34px;text-align:right}
+.rxp-pname{font-size:17px;font-weight:700;font-family:Georgia,serif;letter-spacing:.2px}
+.rxp-pdeg{font-size:10.5px;opacity:.92;margin-top:4px;line-height:1.6}
+.rxp-patient{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 20px;font-size:12px;padding:9px 24px;border-bottom:1px solid #e2ddf0}
+.rxp-patient.r2{border-bottom:2.5px solid #0d9488;padding-bottom:12px}
+.rxp-patient b{color:#0d9488}
+.rxp-body{display:flex;gap:0;margin-top:14px;padding:0 24px;min-height:420px}
+.rxp-left{width:33%;padding-right:18px;border-right:1.3px dashed #cbd5e1}
+.rxp-right{flex:1;padding-left:22px;position:relative}
+.rxp-sec{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#0d9488;margin:14px 0 6px;border-bottom:1px solid #eee;padding-bottom:3px}
+.rxp-sec:first-child{margin-top:0}
+.rxp-li{font-size:11.5px;margin-bottom:4px;line-height:1.5;color:#333}
+.rxp-sym{font-size:32px;font-weight:700;color:#0d9488;font-family:Georgia,serif;margin-bottom:14px}
+.rxp-d{margin-bottom:12px;font-size:12.5px;line-height:1.55;position:relative;z-index:1}
+.rxp-d b{font-size:13px}
+.rxp-d span{display:block;font-size:11px;color:#555;font-style:italic}
+.rxp-water{position:absolute;right:6px;bottom:70px;width:150px;height:150px;opacity:.05;z-index:0}
+.rxp-sigwrap{display:flex;justify-content:flex-end;padding:0 24px;margin-top:46px}
+.rxp-sig{text-align:center;border-top:1.3px solid #333;padding-top:5px;min-width:200px;font-size:10.5px;color:#555;letter-spacing:.3px}
+
+@media print{
+  body{background:#fff}
+  .hdr,.nav,.wrap,#toast{display:none !important}
+  #sheet{display:block !important}
+  .rxp{padding:0;max-width:100%}
+  @page{margin:14mm}
+}
+@media (max-width:640px){
+  .rxp-body{display:block}.rxp-left{width:100%;border:none;padding:0;margin-bottom:14px}
+  .actions{position:static}
+}
+
+/* ---------- dark mode ---------- */
+html[data-theme="dark"]{
+  --ink:#f1edf9; --muted:#b8b0cc; --faint:#8a7fa8; --line:#3a3252; --paper:#241d38; --bg:#161022;
+  --tealS:#0f3630; --roseS:#3d1626; --amberS:#3d2a0a; --indigoS:#2a2050; --skyS:#0f2b3f; --violetS:#2e2350; --greenS:#123321;
+}
+html[data-theme="dark"] body{background-image:radial-gradient(circle at 15% 0%,rgba(124,58,237,.18),transparent 45%),radial-gradient(circle at 85% 15%,rgba(13,148,136,.14),transparent 45%)}
+html[data-theme="dark"] .nav{background:rgba(36,29,56,.9)}
+html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea{background:#2c2440;color:var(--ink);border-color:#453a63}
+html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder{color:#6f6390}
+html[data-theme="dark"] .tagbox{background:linear-gradient(135deg,#241d38,#2c2440);border-color:#453a63}
+html[data-theme="dark"] .row{background:linear-gradient(135deg,#132a26,#0f2320)}
+html[data-theme="dark"] .row.blue{background:linear-gradient(135deg,#0f2230,#0c1c28)}
+html[data-theme="dark"] .libitem{background:#241d38;border-color:#3a3252}
+html[data-theme="dark"] .libitem:hover{background:#2c2440}
+html[data-theme="dark"] .vital{background:linear-gradient(135deg,#0f2230,#0c1c28);border-color:#28405a}
+html[data-theme="dark"] .ac-drop{background:#241d38}
+html[data-theme="dark"] .ac-i{border-color:#3a3252}
+html[data-theme="dark"] .ac-i:hover,html[data-theme="dark"] .ac-i.sel{background:#342a58}
+html[data-theme="dark"] .ai-panel{background:linear-gradient(160deg,#241d38,#2c2440)}
+html[data-theme="dark"] .chip{background:#241d38}
+html[data-theme="dark"] .chip.done{background:#2c2440}
+html[data-theme="dark"] .ai-note{background:#241d38}
+html[data-theme="dark"] .bo{background:#241d38;color:var(--muted);border-color:#453a63}
+html[data-theme="dark"] .empty{color:var(--faint)}
+html[data-theme="dark"] .b-gray{background:#2c2440;color:var(--muted)}
+html[data-theme="dark"] #driveStatus{background:#241d38 !important;border-color:#453a63 !important;color:var(--ink) !important}
+html[data-theme="dark"] #dlForm,html[data-theme="dark"] #ilForm{background:#1c1730 !important;border-color:#3a3252 !important}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-in">
+    <div class="brand">
+      <div class="brand-mark">℞</div>
+      <div><h1>Rx Pad</h1><p>Prescription writer with clinical assistant</p></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="hdr-doc" id="hdrDoc">Set up your profile →</div>
+      <button id="themeToggle" aria-label="Toggle dark mode" style="width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌙</button>
+    </div>
+  </div>
+</div>
+
+<div class="nav"><div class="nav-in">
+  <button class="nb on" data-p="write"><span class="ico">📝</span> Write Rx</button>
+  <button class="nb" data-p="saved"><span class="ico">🗂️</span> Saved</button>
+  <button class="nb" data-p="temp"><span class="ico">🧩</span> Templates</button>
+  <button class="nb" data-p="drugs"><span class="ico">💊</span> Drugs</button>
+  <button class="nb" data-p="invs"><span class="ico">🔬</span> Investigations</button>
+  <button class="nb" data-p="symp"><span class="ico">🩺</span> Symptoms &amp; Signs</button>
+  <button class="nb" data-p="cond"><span class="ico">📚</span> Conditions</button>
+  <button class="nb" data-p="set"><span class="ico">⚙️</span> Profile</button>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 6px">
+    <span id="syncDot" title="Cloud sync status" style="font-size:12px;font-weight:600;color:#0d9488;cursor:default;white-space:nowrap">☁️ Synced</span>
+    <button onclick="pullFromCloud().then(()=>{loadSet();fillQuickTemp();renderDL();renderIL();renderSaved();renderTP();renderSL();renderGN();toast('Pulled latest from cloud')})" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--line);background:none;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit" title="Pull latest data from cloud">⬇️ Pull</button>
+  </div>
+</div></div>
+
+<div class="wrap">
+
+<!-- ============ WRITE ============ -->
+<div class="pg on" id="pg-write">
+
+  <div class="card c-teal">
+    <div class="card-hd">👤 Patient details</div>
+    <div class="card-bd">
+      <div class="g3" style="margin-bottom:11px">
+        <div><label>Patient name</label><input id="p_name" placeholder="Full name"></div>
+        <div><label>Age</label><input id="p_age" placeholder="35 yrs"></div>
+        <div><label>Sex</label><select id="p_sex"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+      </div>
+      <div class="g4">
+        <div><label>Date</label><input id="p_date" type="date"></div>
+        <div><label>Weight</label><input id="p_wt" placeholder="60 kg"></div>
+        <div><label>Height</label><input id="p_ht" placeholder="165 cm"></div>
+        <div><label>Contact</label><input id="p_ph" placeholder="01XXXXXXXXX"></div>
+        <div><label>Reg / ID</label><input id="p_id" placeholder="OPD-001"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card c-rose">
+    <div class="card-hd">🗣️ Chief complaints (C/C) <span class="n" id="ccN"></span></div>
+    <div class="card-bd">
+      <div class="tagbox" id="ccBox"></div>
+      <div class="ac" style="margin-bottom:11px">
+        <input id="ccIn" placeholder="Type to search symptoms — press Enter to add a custom one" autocomplete="off">
+        <div class="ac-drop" id="ccAc"></div>
+      </div>
+      <label>Description, duration &amp; details</label>
+      <textarea id="ccDesc" placeholder="e.g. Fever for 5 days, high grade, intermittent, with chills and rigor. Headache and body ache since day 2. No cough or burning micturition."></textarea>
+    </div>
+  </div>
+
+  <div class="card c-amber">
+    <div class="card-hd">📖 History</div>
+    <div class="card-bd">
+      <div class="g2" style="margin-bottom:11px">
+        <div><label>History of present illness</label><textarea id="h_hpi" placeholder="Onset, progression, aggravating and relieving factors, associated symptoms, treatment taken so far..."></textarea></div>
+        <div><label>Past medical &amp; surgical history</label><textarea id="h_pmh" placeholder="Diabetes, hypertension, TB, asthma, previous surgeries, hospital admissions..."></textarea></div>
+      </div>
+      <div class="g2" style="margin-bottom:11px">
+        <div><label>Drug history &amp; allergies ⚠️</label><textarea id="h_drug" placeholder="Current medicines, known drug allergies, adverse reactions..."></textarea></div>
+        <div><label>Family history</label><textarea id="h_fam" placeholder="Similar illness in family, DM, HTN, IHD, malignancy, TB contact..."></textarea></div>
+      </div>
+      <div class="g2">
+        <div><label>Personal &amp; social history</label><textarea id="h_soc" placeholder="Smoking, betel nut, alcohol, occupation, diet, sleep, bowel and bladder habit..."></textarea></div>
+        <div><label>Menstrual / obstetric history</label><textarea id="h_obs" placeholder="LMP, cycle, parity, contraception (for female patients)"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card c-sky">
+    <div class="card-hd">🩺 Examination &amp; signs <span class="n" id="sgN"></span></div>
+    <div class="card-bd">
+      <div class="g5" style="margin-bottom:14px">
+        <div class="vital"><label>Pulse</label><input id="v_pr" placeholder="—"><span class="u">bpm</span></div>
+        <div class="vital"><label>BP</label><input id="v_bp" placeholder="—"><span class="u">mmHg</span></div>
+        <div class="vital"><label>Temp</label><input id="v_tm" placeholder="—"><span class="u">°F / °C</span></div>
+        <div class="vital"><label>Resp rate</label><input id="v_rr" placeholder="—"><span class="u">/min</span></div>
+        <div class="vital"><label>SpO₂</label><input id="v_sp" placeholder="—"><span class="u">%</span></div>
+      </div>
+      <div class="tagbox" id="sgBox"></div>
+      <div class="ac" style="margin-bottom:11px">
+        <input id="sgIn" placeholder="Type to search signs — press Enter to add a custom one" autocomplete="off">
+        <div class="ac-drop" id="sgAc"></div>
+      </div>
+      <label>Systemic examination findings</label>
+      <textarea id="sgNotes" placeholder="General: anaemic, mildly icteric, no oedema. Abdomen: soft, tender in right hypochondrium, liver not palpable. Chest: bilateral vesicular breath sound, no added sound. CVS: S1 S2 normal..."></textarea>
+    </div>
+  </div>
+
+  <div class="card c-violet">
+    <div class="card-hd">✨ Clinical assistant</div>
+    <div class="card-bd">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Fill in the complaints and signs above, then run the assistant. It suggests differentials, investigations and medicines — you choose what to keep.</p>
+      <div class="btn-row">
+        <button class="btn bv" id="aiBtn">🧠 Suggest from symptoms</button>
+        <button class="btn bo" id="aiClear">Clear suggestions</button>
+      </div>
+      <div id="aiOut"></div>
+    </div>
+  </div>
+
+  <div class="card c-green">
+    <div class="card-hd">🎯 Diagnosis</div>
+    <div class="card-bd">
+      <div class="g2">
+        <div><label>Provisional / final diagnosis</label><input id="dx_final" placeholder="Written on the prescription"></div>
+        <div><label>Differentials to consider</label><input id="dx_diff" placeholder="D/D: ..."></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card c-teal">
+    <div class="card-hd">💊 Medicines <span class="n" id="mdN"></span></div>
+    <div class="card-bd">
+      <div class="g3" style="margin-bottom:9px">
+        <div class="ac"><label>Drug</label><input id="d_name" placeholder="Search drug..." autocomplete="off"><div class="ac-drop" id="dAc"></div></div>
+        <div><label>Dose</label><input id="d_dose" placeholder="500 mg"></div>
+        <div><label>Frequency</label><select id="d_freq"><option value="">Select</option><option>1+0+0 (OD)</option><option>0+0+1 (ON)</option><option>1+0+1 (BD)</option><option>1+1+1 (TDS)</option><option>1+1+1+1 (QDS)</option><option>Every 6 hours</option><option>Every 8 hours</option><option>Every 12 hours</option><option>Alternate day</option><option>Weekly</option><option>PRN (as needed)</option><option>Stat (single dose)</option></select></div>
+      </div>
+      <div class="g4" style="margin-bottom:11px">
+        <div><label>Duration</label><input id="d_dur" placeholder="7 days"></div>
+        <div><label>Route</label><select id="d_route"><option value="">Select</option><option>Oral</option><option>IV</option><option>IM</option><option>SC</option><option>Topical</option><option>Inhalation</option><option>Sublingual</option><option>Per rectal</option><option>Eye drop</option><option>Ear drop</option><option>Nasal spray</option></select></div>
+        <div><label>Timing</label><select id="d_time"><option value="">Select</option><option>After meal</option><option>Before meal</option><option>Empty stomach</option><option>With meal</option><option>At bedtime</option><option>With plenty of water</option></select></div>
+        <div><label>Note</label><input id="d_note" placeholder="Extra instruction"></div>
+      </div>
+      <button class="btn bt" id="dAdd">＋ Add medicine</button>
+      <div id="mdList" style="margin-top:13px"></div>
+    </div>
+  </div>
+
+  <div class="card c-sky">
+    <div class="card-hd">🔬 Investigations <span class="n" id="ivN"></span></div>
+    <div class="card-bd">
+      <div class="ac" style="margin-bottom:11px">
+        <input id="i_name" placeholder="Search investigations — press Enter to add a custom one" autocomplete="off">
+        <div class="ac-drop" id="iAc"></div>
+      </div>
+      <div id="ivList"></div>
+    </div>
+  </div>
+
+  <div class="card c-amber">
+    <div class="card-hd">📋 Advice &amp; follow-up</div>
+    <div class="card-bd">
+      <div class="fg"><label>Advice to patient</label><textarea id="adv" placeholder="Complete rest for 5 days. Plenty of oral fluids. Light home-cooked food. Avoid outside food and spicy items. Report immediately if bleeding, breathlessness or persistent vomiting."></textarea></div>
+      <div class="g2">
+        <div><label>Follow-up</label><input id="fup" placeholder="After 7 days with reports"></div>
+        <div><label>Referral</label><input id="ref" placeholder="Refer to Medicine OPD / Surgery"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn bt" id="aSave">💾 Save prescription</button>
+    <button class="btn bs" id="aPrint">🖨️ Preview &amp; print PDF</button>
+    <select id="quickTemp" style="width:auto;max-width:170px"><option value="">Load template…</option></select>
+    <button class="btn bv" id="aSaveTemp">🧩 Save as template</button>
+    <button class="btn bo" id="aNew">🗒️ New / clear</button>
+    <span class="sp" id="statLine"></span>
+  </div>
+</div>
+
+<!-- ============ SAVED ============ -->
+<div class="pg" id="pg-saved">
+  <div class="card c-teal">
+    <div class="card-hd">🗂️ Saved prescriptions <span class="n" id="svN"></span></div>
+    <div class="card-bd">
+      <input id="svSearch" placeholder="🔍 Search by patient name, diagnosis or drug..." style="margin-bottom:12px">
+      <div id="svList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TEMPLATES ============ -->
+<div class="pg" id="pg-temp">
+  <div class="card c-violet">
+    <div class="card-hd">🧩 Prescription templates <span class="n" id="tpN"></span></div>
+    <div class="card-bd">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">A template stores everything except the patient's name and ID — complaints, history, signs, diagnosis, medicines, investigations and advice. Build a case on the Write Rx page, then use "Save as template" in the bottom bar. Loading a template fills the form; you then add the patient's details and save it as a normal prescription.</p>
+      <input id="tpSearch" placeholder="🔍 Search templates..." style="margin-bottom:12px">
+      <div id="tpList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DRUGS ============ -->
+<div class="pg" id="pg-drugs">
+  <div class="card c-teal">
+    <div class="card-hd">💊 Drug library <span class="n" id="dlN"></span></div>
+    <div class="card-bd">
+      <div class="g3" style="margin-bottom:10px">
+        <input id="dlSearch" placeholder="🔍 Search drugs...">
+        <select id="dlCat"><option value="">All categories</option></select>
+        <button class="btn bt" id="dlAddBtn">＋ Add new drug</button>
+      </div>
+      <div id="dlForm" style="display:none;background:#f8fafc;border:1.5px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px">
+        <div class="g3" style="margin-bottom:9px">
+          <div><label>Drug name</label><input id="nd_n" placeholder="Generic or brand"></div>
+          <div><label>Category</label><select id="nd_c"></select></div>
+          <div><label>Available doses</label><input id="nd_d" placeholder="250 mg, 500 mg"></div>
+        </div>
+        <div class="g3" style="margin-bottom:11px">
+          <div><label>Usual frequency</label><input id="nd_f" placeholder="1+0+1"></div>
+          <div><label>Usual duration</label><input id="nd_u" placeholder="7 days"></div>
+          <div><label>Note</label><input id="nd_o" placeholder="After meal"></div>
+        </div>
+        <div class="btn-row"><button class="btn bt" id="nd_save">Save drug</button><button class="btn bo" id="nd_cancel">Cancel</button></div>
+      </div>
+      <div id="dlList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ INVESTIGATIONS ============ -->
+<div class="pg" id="pg-invs">
+  <div class="card c-sky">
+    <div class="card-hd">🔬 Investigation library <span class="n" id="ilN"></span></div>
+    <div class="card-bd">
+      <div class="g3" style="margin-bottom:10px">
+        <input id="ilSearch" placeholder="🔍 Search investigations...">
+        <select id="ilCat"><option value="">All categories</option></select>
+        <button class="btn bs" id="ilAddBtn">＋ Add investigation</button>
+      </div>
+      <div id="ilForm" style="display:none;background:#f8fafc;border:1.5px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px">
+        <div class="g2" style="margin-bottom:11px">
+          <div><label>Name</label><input id="ni_n" placeholder="Investigation name"></div>
+          <div><label>Category</label><select id="ni_c"></select></div>
+        </div>
+        <div class="btn-row"><button class="btn bs" id="ni_save">Save</button><button class="btn bo" id="ni_cancel">Cancel</button></div>
+      </div>
+      <div id="ilList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SYMPTOMS ============ -->
+<div class="pg" id="pg-symp">
+  <div class="g2">
+    <div class="card c-rose">
+      <div class="card-hd">🗣️ Symptoms <span class="n" id="slN"></span></div>
+      <div class="card-bd">
+        <div class="g2" style="margin-bottom:10px">
+          <input id="slSearch" placeholder="🔍 Search symptoms...">
+          <div style="display:flex;gap:7px"><input id="slNew" placeholder="Add new symptom"><button class="btn br bsm" id="slAdd">＋</button></div>
+        </div>
+        <div id="slList" style="max-height:460px;overflow-y:auto"></div>
+      </div>
+    </div>
+    <div class="card c-sky">
+      <div class="card-hd">🩺 Signs <span class="n" id="gnN"></span></div>
+      <div class="card-bd">
+        <div class="g2" style="margin-bottom:10px">
+          <input id="gnSearch" placeholder="🔍 Search signs...">
+          <div style="display:flex;gap:7px"><input id="gnNew" placeholder="Add new sign"><button class="btn bs bsm" id="gnAdd">＋</button></div>
+        </div>
+        <div id="gnList" style="max-height:460px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CONDITIONS ============ -->
+<div class="pg" id="pg-cond">
+  <div class="card c-violet">
+    <div class="card-hd">📚 Condition knowledge base <span class="n" id="kbN"></span></div>
+    <div class="card-bd">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:11px">This is what the offline assistant matches against. Open any condition to see its trigger findings, standard investigations and drug plan.</p>
+      <input id="kbSearch" placeholder="🔍 Search conditions..." style="margin-bottom:12px">
+      <div id="kbList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div class="pg" id="pg-set">
+  <div class="card c-teal">
+    <div class="card-hd">⚙️ Your details (printed on every prescription)</div>
+    <div class="card-bd">
+      <div class="g2" style="margin-bottom:11px">
+        <div><label>Name</label><input id="s_name" placeholder="Dr. Md. Khalid"></div>
+        <div><label>Degrees</label><input id="s_deg" placeholder="MBBS (SSMC)"></div>
+      </div>
+      <div class="g2" style="margin-bottom:11px">
+        <div><label>Designation</label><input id="s_desig" placeholder="Intern Doctor, Department of Medicine"></div>
+        <div><label>Institution</label><input id="s_inst" placeholder="Shaheed Suhrawardy Medical College Hospital"></div>
+      </div>
+      <div class="g2" style="margin-bottom:11px">
+        <div><label>Registration no.</label><input id="s_reg" placeholder="BMDC Reg. A-XXXXX"></div>
+        <div><label>Mobile</label><input id="s_ph" placeholder="01XXXXXXXXX"></div>
+      </div>
+      <div class="g2" style="margin-bottom:11px">
+        <div><label>Chamber name</label><input id="s_chamber" placeholder="Chamber / clinic name"></div>
+        <div><label>Chamber address</label><input id="s_addr" placeholder="Address"></div>
+      </div>
+      <div class="g2">
+        <div><label>Chamber hours</label><input id="s_hours" placeholder="5 PM – 9 PM (Friday closed)"></div>
+        <div><label>Footer line</label><input id="s_foot" placeholder="Bring all reports on next visit"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card c-violet">
+    <div class="card-hd">🔌 Online AI (optional)</div>
+    <div class="card-bd">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">The assistant works offline out of the box using the built-in knowledge base. If you want richer, free-text reasoning, paste an Anthropic API key from console.anthropic.com — it stays on this computer only. Leave blank to stay fully offline.</p>
+      <div class="g2" style="margin-bottom:11px">
+        <div><label>API key</label><input id="s_key" type="password" placeholder="sk-ant-..."></div>
+        <div><label>Model</label><select id="s_model"><option value="claude-sonnet-5">Claude Sonnet 5 (balanced)</option><option value="claude-opus-5">Claude Opus 5 (strongest)</option><option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fastest)</option></select></div>
+      </div>
+      <label style="text-transform:none;font-size:12.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="s_useai" style="width:auto"> Use online AI when a key is present
+      </label>
+    </div>
+  </div>
+
+  <div class="card c-sky">
+    <div class="card-hd">☁️ Cloud sync (Supabase)</div>
+    <div class="card-bd">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Your data automatically syncs to the cloud every time you save anything. Works on every device — phone, tablet, laptop — no setup needed. To use the same data on a new device, copy your Device ID and paste it there.</p>
+      <div class="g2" style="margin-bottom:11px">
+        <div>
+          <label>Your device ID</label>
+          <div style="display:flex;gap:8px">
+            <input id="showUID" readonly style="font-family:monospace;font-size:11px;background:#f4f0fb">
+            <button class="btn bv bsm" onclick="navigator.clipboard.writeText($('showUID').value).then(()=>toast('Device ID copied!'))">Copy</button>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:4px">This is your private key — share with no one</div>
+        </div>
+        <div>
+          <label>Load data from another device</label>
+          <div style="display:flex;gap:8px">
+            <input id="linkUID" placeholder="Paste device ID from other device...">
+            <button class="btn bs bsm" id="linkDevBtn">Load</button>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:4px">Replaces current device data with that device's data</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn bt bsm" onclick="pushAllToCloud().then(()=>toast('✅ All data pushed to cloud'))">⬆️ Push to cloud</button>
+        <button class="btn bs bsm" onclick="pullFromCloud().then(()=>{loadSet();fillQuickTemp();renderDL();renderIL();renderSaved();renderTP();renderSL();renderGN();toast('✅ Pulled latest from cloud')})">⬇️ Pull from cloud</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card c-sky">
+    <div class="card-hd">☁️ Sync via Google Drive folder</div>
+    <div class="card-bd">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">There's no real Gmail sign-in here — but Chrome can save your data straight into a file inside your Google Drive desktop folder, and Drive will sync that file to the cloud and to your other devices automatically. This needs the free <b>Google Drive for desktop</b> app installed and signed in on this computer first.</p>
+      <div id="driveStatus" style="font-size:12.5px;font-weight:600;padding:8px 11px;border-radius:8px;margin-bottom:11px;background:#f8fafc;border:1px solid var(--line)">Not linked yet</div>
+      <div class="btn-row">
+        <button class="btn bs" id="driveLink">🔗 Choose file inside Drive folder</button>
+        <button class="btn bg" id="driveSyncNow" style="display:none">⬆️ Sync now</button>
+        <button class="btn ba" id="driveLoad" style="display:none">⬇️ Load from that file</button>
+      </div>
+      <p style="font-size:11.5px;color:var(--faint);margin-top:10px">On another device: install Google Drive for desktop there too, open this same HTML file from inside the synced Drive folder in Chrome, then tap <b>Choose file inside Drive folder</b> and pick that same file — it'll offer to load its contents onto this device.</p>
+    </div>
+  </div>
+
+  <div class="card c-amber">
+    <div class="card-hd">💾 Backup &amp; restore</div>
+    <div class="card-bd">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Everything is stored inside this browser. Export a backup file regularly, especially before clearing browser data or moving to another computer.</p>
+      <div class="btn-row">
+        <button class="btn ba" id="expBtn">⬇️ Export backup</button>
+        <button class="btn bo" id="impBtn">⬆️ Import backup</button>
+        <input type="file" id="impFile" accept=".json" style="display:none;width:auto">
+        <button class="btn br" id="wipeBtn">🗑️ Reset everything</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row"><button class="btn bt" id="setSave">💾 Save profile</button></div>
+</div>
+
+</div>
+
+<div id="sheet"></div>
+<div id="toast"></div>
+
+<script>
+/* ============ DATA ============ */
+const DRUG_CATS=["Antibiotic — Penicillin","Antibiotic — Cephalosporin","Antibiotic — Macrolide","Antibiotic — Quinolone","Antibiotic — Aminoglycoside","Antibiotic — Other","Antitubercular","Antimalarial","Antiviral","Antifungal","Anthelmintic","Analgesic / NSAID","Opioid analgesic","Antipyretic","PPI / Antacid","Antiemetic","Antispasmodic","Laxative / Antidiarrhoeal","Antihypertensive","Diuretic","Antianginal / Cardiac","Antiplatelet / Anticoagulant","Statin / Lipid","Antidiabetic","Thyroid","Steroid","Antihistamine","Respiratory / Inhaler","Antitussive / Mucolytic","Neurology / Antiepileptic","Psychiatry","Antivertigo","Urology","Gynae / Obstetric","Dermatology","Ophthalmic","ENT","Vitamin / Supplement","IV fluid","Vaccine","Other"];
+
+const DRUGS=[
+{n:"Amoxicillin",c:"Antibiotic — Penicillin",d:"250 mg, 500 mg",f:"1+1+1",u:"7 days",o:"After meal"},
+{n:"Amoxicillin + Clavulanic acid",c:"Antibiotic — Penicillin",d:"375 mg, 625 mg, 1 g",f:"1+0+1",u:"7 days",o:"After meal"},
+{n:"Ampicillin",c:"Antibiotic — Penicillin",d:"250 mg, 500 mg",f:"1+1+1+1",u:"7 days",o:"Empty stomach"},
+{n:"Flucloxacillin",c:"Antibiotic — Penicillin",d:"250 mg, 500 mg",f:"1+1+1+1",u:"7 days",o:"Before meal"},
+{n:"Cloxacillin",c:"Antibiotic — Penicillin",d:"250 mg, 500 mg",f:"1+1+1+1",u:"7 days",o:"Empty stomach"},
+{n:"Benzathine penicillin",c:"Antibiotic — Penicillin",d:"1.2 MU, 2.4 MU",f:"Every 3 weeks",u:"Long term",o:"Deep IM, test dose first"},
+{n:"Piperacillin + Tazobactam",c:"Antibiotic — Penicillin",d:"4.5 g",f:"Every 8 hours",u:"7 days",o:"IV infusion"},
+{n:"Cephradine",c:"Antibiotic — Cephalosporin",d:"250 mg, 500 mg",f:"1+1+1+1",u:"7 days",o:"After meal"},
+{n:"Cefixime",c:"Antibiotic — Cephalosporin",d:"100 mg, 200 mg, 400 mg",f:"1+0+1",u:"7 days",o:"After meal"},
+{n:"Cefuroxime",c:"Antibiotic — Cephalosporin",d:"250 mg, 500 mg",f:"1+0+1",u:"7 days",o:"After meal"},
+{n:"Ceftriaxone",c:"Antibiotic — Cephalosporin",d:"250 mg, 1 g, 2 g",f:"1+0+0",u:"7 days",o:"IV / IM"},
+{n:"Cefotaxime",c:"Antibiotic — Cephalosporin",d:"1 g",f:"Every 8 hours",u:"7 days",o:"IV"},
+{n:"Ceftazidime",c:"Antibiotic — Cephalosporin",d:"1 g",f:"Every 8 hours",u:"7 days",o:"IV"},
+{n:"Cefepime",c:"Antibiotic — Cephalosporin",d:"1 g, 2 g",f:"1+0+1",u:"7 days",o:"IV"},
+{n:"Cephalexin",c:"Antibiotic — Cephalosporin",d:"250 mg, 500 mg",f:"1+1+1",u:"7 days",o:"After meal"},
+{n:"Azithromycin",c:"Antibiotic — Macrolide",d:"250 mg, 500 mg",f:"1+0+0",u:"3–5 days",o:"Empty stomach"},
+{n:"Clarithromycin",c:"Antibiotic — Macrolide",d:"250 mg, 500 mg",f:"1+0+1",u:"7 days",o:"After meal"},
+{n:"Erythromycin",c:"Antibiotic — Macrolide",d:"250 mg, 500 mg",f:"1+1+1+1",u:"7 days",o:"Before meal"},
+{n:"Ciprofloxacin",c:"Antibiotic — Quinolone",d:"250 mg, 500 mg",f:"1+0+1",u:"7 days",o:"Avoid antacid / milk"},
+{n:"Levofloxacin",c:"Antibiotic — Quinolone",d:"250 mg, 500 mg, 750 mg",f:"1+0+0",u:"7 days",o:"After meal"},
+{n:"Moxifloxacin",c:"Antibiotic — Quinolone",d:"400 mg",f:"1+0+0",u:"7 days",o:"After meal"},
+{n:"Ofloxacin",c:"Antibiotic — Quinolone",d:"200 mg, 400 mg",f:"1+0+1",u:"5 days",o:"After meal"},
+{n:"Norfloxacin",c:"Antibiotic — Quinolone",d:"400 mg",f:"1+0+1",u:"5 days",o:"Empty stomach"},
+{n:"Gentamicin",c:"Antibiotic — Aminoglycoside",d:"40 mg, 80 mg",f:"Every 8 hours",u:"5–7 days",o:"IV / IM, watch renal function"},
+{n:"Amikacin",c:"Antibiotic — Aminoglycoside",d:"250 mg, 500 mg",f:"1+0+1",u:"7 days",o:"IV / IM"},
+{n:"Metronidazole",c:"Antibiotic — Other",d:"200 mg, 400 mg",f:"1+1+1",u:"7 days",o:"After meal, no alcohol"},
+{n:"Tinidazole",c:"Antibiotic — Other",d:"500 mg",f:"1+0+1",u:"3 days",o:"After meal"},
+{n:"Secnidazole",c:"Antibiotic — Other",d:"1 g",f:"Stat",u:"Single dose",o:"After meal"},
+{n:"Doxycycline",c:"Antibiotic — Other",d:"100 mg",f:"1+0+1",u:"7 days",o:"Upright with water"},
+{n:"Cotrimoxazole",c:"Antibiotic — Other",d:"480 mg, 960 mg",f:"1+0+1",u:"5–7 days",o:"With plenty of water"},
+{n:"Clindamycin",c:"Antibiotic — Other",d:"150 mg, 300 mg",f:"1+1+1",u:"7 days",o:"After meal"},
+{n:"Vancomycin",c:"Antibiotic — Other",d:"500 mg, 1 g",f:"Every 12 hours",u:"7–14 days",o:"IV, slow infusion"},
+{n:"Meropenem",c:"Antibiotic — Other",d:"500 mg, 1 g",f:"Every 8 hours",u:"7–14 days",o:"IV"},
+{n:"Linezolid",c:"Antibiotic — Other",d:"600 mg",f:"1+0+1",u:"10 days",o:"After meal"},
+{n:"Nitrofurantoin",c:"Antibiotic — Other",d:"50 mg, 100 mg",f:"1+1+1",u:"5–7 days",o:"With food"},
+{n:"Fosfomycin",c:"Antibiotic — Other",d:"3 g sachet",f:"Stat",u:"Single dose",o:"Empty stomach at bedtime"},
+{n:"Isoniazid",c:"Antitubercular",d:"75 mg, 300 mg",f:"1+0+0",u:"6 months",o:"Empty stomach, add pyridoxine"},
+{n:"Rifampicin",c:"Antitubercular",d:"150 mg, 450 mg, 600 mg",f:"1+0+0",u:"6 months",o:"Empty stomach, orange urine"},
+{n:"Pyrazinamide",c:"Antitubercular",d:"400 mg, 750 mg",f:"1+0+0",u:"2 months",o:"After meal"},
+{n:"Ethambutol",c:"Antitubercular",d:"275 mg, 400 mg",f:"1+0+0",u:"2 months",o:"Check colour vision"},
+{n:"Anti-TB FDC (4-drug)",c:"Antitubercular",d:"Weight-band tablets",f:"1+0+0",u:"2 months intensive",o:"Empty stomach"},
+{n:"Artemether + Lumefantrine",c:"Antimalarial",d:"20/120 mg",f:"1+0+1",u:"3 days",o:"With fatty food"},
+{n:"Chloroquine",c:"Antimalarial",d:"250 mg",f:"As per schedule",u:"3 days",o:"After meal"},
+{n:"Primaquine",c:"Antimalarial",d:"7.5 mg, 15 mg",f:"1+0+0",u:"14 days",o:"Check G6PD first"},
+{n:"Quinine",c:"Antimalarial",d:"300 mg",f:"1+1+1",u:"7 days",o:"After meal"},
+{n:"Artesunate injection",c:"Antimalarial",d:"60 mg",f:"0, 12, 24 h then daily",u:"Until oral possible",o:"IV, severe malaria"},
+{n:"Acyclovir",c:"Antiviral",d:"200 mg, 400 mg, 800 mg",f:"5 times daily",u:"5–7 days",o:"Plenty of water"},
+{n:"Valacyclovir",c:"Antiviral",d:"500 mg, 1 g",f:"1+0+1",u:"7 days",o:"After meal"},
+{n:"Oseltamivir",c:"Antiviral",d:"75 mg",f:"1+0+1",u:"5 days",o:"After meal"},
+{n:"Tenofovir",c:"Antiviral",d:"300 mg",f:"1+0+0",u:"Long term",o:"For hepatitis B"},
+{n:"Entecavir",c:"Antiviral",d:"0.5 mg",f:"1+0+0",u:"Long term",o:"Empty stomach"},
+{n:"Fluconazole",c:"Antifungal",d:"50 mg, 150 mg, 200 mg",f:"1+0+0",u:"As needed",o:"After meal"},
+{n:"Itraconazole",c:"Antifungal",d:"100 mg, 200 mg",f:"1+0+1",u:"2–4 weeks",o:"With food"},
+{n:"Ketoconazole shampoo",c:"Antifungal",d:"2%",f:"Twice weekly",u:"4 weeks",o:"Leave 5 min then rinse"},
+{n:"Clotrimazole cream",c:"Antifungal",d:"1%",f:"1+0+1",u:"2–4 weeks",o:"Apply thin layer"},
+{n:"Terbinafine",c:"Antifungal",d:"250 mg",f:"1+0+0",u:"2–6 weeks",o:"After meal"},
+{n:"Griseofulvin",c:"Antifungal",d:"125 mg, 250 mg",f:"1+0+1",u:"6 weeks",o:"With fatty meal"},
+{n:"Albendazole",c:"Anthelmintic",d:"400 mg",f:"Stat",u:"Single dose",o:"Chew, repeat in 2 weeks"},
+{n:"Mebendazole",c:"Anthelmintic",d:"100 mg, 500 mg",f:"1+0+1",u:"3 days",o:"After meal"},
+{n:"Ivermectin",c:"Anthelmintic",d:"6 mg, 12 mg",f:"Stat",u:"Single dose",o:"Empty stomach"},
+{n:"Praziquantel",c:"Anthelmintic",d:"600 mg",f:"As per weight",u:"1 day",o:"After meal"},
+{n:"Paracetamol",c:"Antipyretic",d:"500 mg, 665 mg, 1 g",f:"1+1+1",u:"As needed",o:"After meal, max 4 g/day"},
+{n:"Paracetamol suspension",c:"Antipyretic",d:"120 mg/5 ml",f:"Every 6 hours",u:"As needed",o:"Paediatric, 15 mg/kg/dose"},
+{n:"Ibuprofen",c:"Analgesic / NSAID",d:"200 mg, 400 mg",f:"1+1+1",u:"5 days",o:"After meal"},
+{n:"Naproxen",c:"Analgesic / NSAID",d:"250 mg, 500 mg",f:"1+0+1",u:"5 days",o:"After meal"},
+{n:"Diclofenac sodium",c:"Analgesic / NSAID",d:"25 mg, 50 mg, 75 mg",f:"1+0+1",u:"5 days",o:"After meal"},
+{n:"Aceclofenac",c:"Analgesic / NSAID",d:"100 mg",f:"1+0+1",u:"5 days",o:"After meal"},
+{n:"Etoricoxib",c:"Analgesic / NSAID",d:"60 mg, 90 mg, 120 mg",f:"1+0+0",u:"5 days",o:"After meal"},
+{n:"Ketorolac",c:"Analgesic / NSAID",d:"10 mg, 30 mg",f:"Every 8 hours",u:"Max 5 days",o:"IV / IM, short term only"},
+{n:"Indomethacin",c:"Analgesic / NSAID",d:"25 mg",f:"1+1+1",u:"5 days",o:"After meal"},
+{n:"Tramadol",c:"Opioid analgesic",d:"50 mg, 100 mg",f:"1+0+1",u:"3–5 days",o:"May cause drowsiness"},
+{n:"Morphine",c:"Opioid analgesic",d:"10 mg",f:"Every 4 hours",u:"As needed",o:"Monitor respiration"},
+{n:"Pethidine",c:"Opioid analgesic",d:"50 mg, 100 mg",f:"Every 6 hours",u:"As needed",o:"IM, biliary / renal colic"},
+{n:"Omeprazole",c:"PPI / Antacid",d:"20 mg, 40 mg",f:"1+0+0",u:"4 weeks",o:"30 min before breakfast"},
+{n:"Esomeprazole",c:"PPI / Antacid",d:"20 mg, 40 mg",f:"1+0+0",u:"4 weeks",o:"Before meal"},
+{n:"Pantoprazole",c:"PPI / Antacid",d:"20 mg, 40 mg",f:"1+0+0",u:"4 weeks",o:"Before meal"},
+{n:"Rabeprazole",c:"PPI / Antacid",d:"10 mg, 20 mg",f:"1+0+0",u:"4 weeks",o:"Before meal"},
+{n:"Ranitidine",c:"PPI / Antacid",d:"150 mg",f:"1+0+1",u:"4 weeks",o:"After meal"},
+{n:"Famotidine",c:"PPI / Antacid",d:"20 mg, 40 mg",f:"0+0+1",u:"4 weeks",o:"At bedtime"},
+{n:"Antacid suspension",c:"PPI / Antacid",d:"10 ml",f:"1+1+1",u:"As needed",o:"After meal and bedtime"},
+{n:"Sucralfate",c:"PPI / Antacid",d:"1 g",f:"1+1+1+1",u:"4 weeks",o:"Empty stomach"},
+{n:"Ondansetron",c:"Antiemetic",d:"4 mg, 8 mg",f:"1+1+1",u:"3 days",o:"Before meal"},
+{n:"Domperidone",c:"Antiemetic",d:"10 mg",f:"1+1+1",u:"5 days",o:"30 min before meal"},
+{n:"Metoclopramide",c:"Antiemetic",d:"10 mg",f:"1+1+1",u:"3 days",o:"Before meal"},
+{n:"Promethazine",c:"Antiemetic",d:"10 mg, 25 mg",f:"0+0+1",u:"3 days",o:"Causes drowsiness"},
+{n:"Doxylamine + Pyridoxine",c:"Antiemetic",d:"10/10 mg",f:"0+0+1",u:"As needed",o:"Nausea of pregnancy"},
+{n:"Hyoscine butylbromide",c:"Antispasmodic",d:"10 mg",f:"1+1+1",u:"3 days",o:"For colicky pain"},
+{n:"Drotaverine",c:"Antispasmodic",d:"40 mg, 80 mg",f:"1+1+1",u:"3 days",o:"After meal"},
+{n:"Mebeverine",c:"Antispasmodic",d:"135 mg",f:"1+1+1",u:"2 weeks",o:"20 min before meal"},
+{n:"Dicyclomine",c:"Antispasmodic",d:"10 mg, 20 mg",f:"1+1+1",u:"5 days",o:"Before meal"},
+{n:"ORS sachet",c:"Laxative / Antidiarrhoeal",d:"1 sachet in 500 ml",f:"After each loose stool",u:"Until diarrhoea stops",o:"Freshly prepared water"},
+{n:"Zinc sulphate",c:"Laxative / Antidiarrhoeal",d:"10 mg, 20 mg",f:"1+0+0",u:"14 days",o:"Paediatric diarrhoea"},
+{n:"Loperamide",c:"Laxative / Antidiarrhoeal",d:"2 mg",f:"After each loose stool",u:"Max 2 days",o:"Avoid in dysentery"},
+{n:"Racecadotril",c:"Laxative / Antidiarrhoeal",d:"100 mg",f:"1+1+1",u:"3 days",o:"Before meal"},
+{n:"Lactulose",c:"Laxative / Antidiarrhoeal",d:"10 g/15 ml",f:"0+0+1",u:"As needed",o:"Titrate to 2–3 soft stools"},
+{n:"Ispaghula husk",c:"Laxative / Antidiarrhoeal",d:"1 sachet",f:"0+0+1",u:"Ongoing",o:"With a full glass of water"},
+{n:"Bisacodyl",c:"Laxative / Antidiarrhoeal",d:"5 mg",f:"0+0+1",u:"Short term",o:"At bedtime"},
+{n:"Probiotic sachet",c:"Laxative / Antidiarrhoeal",d:"1 sachet",f:"1+0+1",u:"5 days",o:"Away from antibiotic dose"},
+{n:"Amlodipine",c:"Antihypertensive",d:"5 mg, 10 mg",f:"1+0+0",u:"Long term",o:"Watch for ankle oedema"},
+{n:"Losartan",c:"Antihypertensive",d:"25 mg, 50 mg",f:"1+0+0",u:"Long term",o:"Monitor K+ and creatinine"},
+{n:"Olmesartan",c:"Antihypertensive",d:"20 mg, 40 mg",f:"1+0+0",u:"Long term",o:"After meal"},
+{n:"Telmisartan",c:"Antihypertensive",d:"40 mg, 80 mg",f:"1+0+0",u:"Long term",o:"Morning dose"},
+{n:"Ramipril",c:"Antihypertensive",d:"2.5 mg, 5 mg",f:"1+0+0",u:"Long term",o:"Dry cough is common"},
+{n:"Enalapril",c:"Antihypertensive",d:"5 mg, 10 mg",f:"1+0+1",u:"Long term",o:"Monitor renal function"},
+{n:"Atenolol",c:"Antihypertensive",d:"25 mg, 50 mg",f:"1+0+0",u:"Long term",o:"Avoid in asthma"},
+{n:"Bisoprolol",c:"Antihypertensive",d:"2.5 mg, 5 mg",f:"1+0+0",u:"Long term",o:"Do not stop abruptly"},
+{n:"Metoprolol",c:"Antihypertensive",d:"25 mg, 50 mg",f:"1+0+1",u:"Long term",o:"After meal"},
+{n:"Carvedilol",c:"Antihypertensive",d:"3.125 mg, 6.25 mg",f:"1+0+1",u:"Long term",o:"With food"},
+{n:"Labetalol",c:"Antihypertensive",d:"100 mg, 200 mg",f:"1+0+1",u:"Long term",o:"Safe in pregnancy"},
+{n:"Methyldopa",c:"Antihypertensive",d:"250 mg",f:"1+1+1",u:"Long term",o:"Preferred in pregnancy"},
+{n:"Nifedipine",c:"Antihypertensive",d:"10 mg, 20 mg",f:"1+0+1",u:"Long term",o:"Sustained-release preferred"},
+{n:"Hydrochlorothiazide",c:"Diuretic",d:"12.5 mg, 25 mg",f:"1+0+0",u:"Long term",o:"Morning, monitor K+"},
+{n:"Furosemide",c:"Diuretic",d:"20 mg, 40 mg",f:"1+0+0",u:"As needed",o:"Morning, monitor electrolytes"},
+{n:"Torsemide",c:"Diuretic",d:"5 mg, 10 mg",f:"1+0+0",u:"As needed",o:"Morning dose"},
+{n:"Spironolactone",c:"Diuretic",d:"25 mg, 50 mg",f:"1+0+0",u:"Long term",o:"Watch for hyperkalaemia"},
+{n:"Isosorbide mononitrate",c:"Antianginal / Cardiac",d:"20 mg, 40 mg",f:"1+0+1",u:"Long term",o:"Headache is common"},
+{n:"Glyceryl trinitrate (GTN)",c:"Antianginal / Cardiac",d:"0.5 mg",f:"PRN",u:"As needed",o:"Sublingual for chest pain"},
+{n:"Ivabradine",c:"Antianginal / Cardiac",d:"5 mg, 7.5 mg",f:"1+0+1",u:"Long term",o:"With meal"},
+{n:"Digoxin",c:"Antianginal / Cardiac",d:"0.25 mg",f:"1+0+0",u:"Long term",o:"Monitor level and K+"},
+{n:"Sacubitril + Valsartan",c:"Antianginal / Cardiac",d:"50 mg, 100 mg",f:"1+0+1",u:"Long term",o:"Stop ACEi 36 h before"},
+{n:"Aspirin",c:"Antiplatelet / Anticoagulant",d:"75 mg, 150 mg",f:"1+0+0",u:"Long term",o:"After meal"},
+{n:"Clopidogrel",c:"Antiplatelet / Anticoagulant",d:"75 mg",f:"1+0+0",u:"Long term",o:"After meal"},
+{n:"Enoxaparin",c:"Antiplatelet / Anticoagulant",d:"40 mg, 60 mg",f:"1+0+0",u:"As needed",o:"Subcutaneous"},
+{n:"Warfarin",c:"Antiplatelet / Anticoagulant",d:"1 mg, 3 mg, 5 mg",f:"0+0+1",u:"Long term",o:"Monitor INR regularly"},
+{n:"Rivaroxaban",c:"Antiplatelet / Anticoagulant",d:"10 mg, 15 mg, 20 mg",f:"1+0+0",u:"Long term",o:"With food"},
+{n:"Atorvastatin",c:"Statin / Lipid",d:"10 mg, 20 mg, 40 mg",f:"0+0+1",u:"Long term",o:"At night"},
+{n:"Rosuvastatin",c:"Statin / Lipid",d:"5 mg, 10 mg, 20 mg",f:"0+0+1",u:"Long term",o:"At night"},
+{n:"Fenofibrate",c:"Statin / Lipid",d:"145 mg, 160 mg",f:"1+0+0",u:"Long term",o:"With meal"},
+{n:"Metformin",c:"Antidiabetic",d:"500 mg, 850 mg, 1 g",f:"1+0+1",u:"Long term",o:"After meal"},
+{n:"Glimepiride",c:"Antidiabetic",d:"1 mg, 2 mg, 4 mg",f:"1+0+0",u:"Long term",o:"Before breakfast"},
+{n:"Gliclazide",c:"Antidiabetic",d:"30 mg, 60 mg, 80 mg",f:"1+0+0",u:"Long term",o:"Before breakfast"},
+{n:"Sitagliptin",c:"Antidiabetic",d:"50 mg, 100 mg",f:"1+0+0",u:"Long term",o:"With or without food"},
+{n:"Linagliptin",c:"Antidiabetic",d:"5 mg",f:"1+0+0",u:"Long term",o:"Safe in renal impairment"},
+{n:"Empagliflozin",c:"Antidiabetic",d:"10 mg, 25 mg",f:"1+0+0",u:"Long term",o:"Maintain hydration"},
+{n:"Insulin (soluble / regular)",c:"Antidiabetic",d:"Units per sliding scale",f:"1+1+1",u:"Ongoing",o:"30 min before meal, SC"},
+{n:"Insulin glargine",c:"Antidiabetic",d:"Units at bedtime",f:"0+0+1",u:"Ongoing",o:"Same time each night, SC"},
+{n:"Premixed insulin 30/70",c:"Antidiabetic",d:"Units",f:"1+0+1",u:"Ongoing",o:"30 min before meal, SC"},
+{n:"Levothyroxine",c:"Thyroid",d:"25 mcg, 50 mcg, 100 mcg",f:"1+0+0",u:"Long term",o:"Empty stomach, 30 min before food"},
+{n:"Carbimazole",c:"Thyroid",d:"5 mg, 10 mg",f:"1+1+1",u:"12–18 months",o:"Report sore throat or fever"},
+{n:"Propylthiouracil",c:"Thyroid",d:"50 mg",f:"1+1+1",u:"Long term",o:"Preferred in first trimester"},
+{n:"Prednisolone",c:"Steroid",d:"5 mg, 10 mg, 20 mg",f:"1+0+0",u:"As advised",o:"After breakfast, taper slowly"},
+{n:"Hydrocortisone",c:"Steroid",d:"100 mg",f:"Every 6–8 hours",u:"As needed",o:"IV in emergency"},
+{n:"Dexamethasone",c:"Steroid",d:"4 mg, 8 mg",f:"Every 8 hours",u:"As needed",o:"IV / oral"},
+{n:"Methylprednisolone",c:"Steroid",d:"4 mg, 16 mg, 500 mg",f:"1+0+0",u:"As advised",o:"After meal"},
+{n:"Cetirizine",c:"Antihistamine",d:"5 mg, 10 mg",f:"0+0+1",u:"7 days",o:"At night, may cause drowsiness"},
+{n:"Levocetirizine",c:"Antihistamine",d:"5 mg",f:"0+0+1",u:"7 days",o:"At night"},
+{n:"Fexofenadine",c:"Antihistamine",d:"120 mg, 180 mg",f:"1+0+0",u:"7 days",o:"Non-sedating"},
+{n:"Loratadine",c:"Antihistamine",d:"10 mg",f:"1+0+0",u:"7 days",o:"Non-sedating"},
+{n:"Chlorpheniramine",c:"Antihistamine",d:"4 mg",f:"1+1+1",u:"5 days",o:"Sedating"},
+{n:"Hydroxyzine",c:"Antihistamine",d:"10 mg, 25 mg",f:"0+0+1",u:"7 days",o:"For itching at night"},
+{n:"Montelukast",c:"Respiratory / Inhaler",d:"4 mg, 5 mg, 10 mg",f:"0+0+1",u:"Long term",o:"At bedtime"},
+{n:"Salbutamol inhaler",c:"Respiratory / Inhaler",d:"100 mcg/puff",f:"2 puffs PRN",u:"As needed",o:"Use a spacer"},
+{n:"Salbutamol nebulisation",c:"Respiratory / Inhaler",d:"2.5 mg",f:"Every 6 hours",u:"As needed",o:"With normal saline"},
+{n:"Ipratropium nebulisation",c:"Respiratory / Inhaler",d:"500 mcg",f:"Every 6 hours",u:"As needed",o:"Often with salbutamol"},
+{n:"Budesonide + Formoterol inhaler",c:"Respiratory / Inhaler",d:"160/4.5 mcg",f:"2 puffs 1+0+1",u:"Long term",o:"Rinse mouth after use"},
+{n:"Fluticasone + Salmeterol inhaler",c:"Respiratory / Inhaler",d:"250/25 mcg",f:"2 puffs 1+0+1",u:"Long term",o:"Rinse mouth after use"},
+{n:"Tiotropium inhaler",c:"Respiratory / Inhaler",d:"18 mcg",f:"1+0+0",u:"Long term",o:"For COPD"},
+{n:"Theophylline SR",c:"Respiratory / Inhaler",d:"200 mg, 400 mg",f:"1+0+1",u:"Long term",o:"Narrow therapeutic range"},
+{n:"Ambroxol",c:"Antitussive / Mucolytic",d:"30 mg, 75 mg",f:"1+1+1",u:"5 days",o:"After meal"},
+{n:"Bromhexine",c:"Antitussive / Mucolytic",d:"8 mg",f:"1+1+1",u:"5 days",o:"After meal"},
+{n:"Acetylcysteine",c:"Antitussive / Mucolytic",d:"200 mg, 600 mg",f:"1+0+0",u:"7 days",o:"Dissolve in water"},
+{n:"Dextromethorphan syrup",c:"Antitussive / Mucolytic",d:"10 ml",f:"1+1+1",u:"5 days",o:"Dry cough only"},
+{n:"Carbamazepine",c:"Neurology / Antiepileptic",d:"200 mg, 400 mg",f:"1+0+1",u:"Long term",o:"Monitor CBC and LFT"},
+{n:"Sodium valproate",c:"Neurology / Antiepileptic",d:"200 mg, 500 mg",f:"1+0+1",u:"Long term",o:"Avoid in pregnancy"},
+{n:"Levetiracetam",c:"Neurology / Antiepileptic",d:"250 mg, 500 mg, 1 g",f:"1+0+1",u:"Long term",o:"After meal"},
+{n:"Phenytoin",c:"Neurology / Antiepileptic",d:"100 mg",f:"1+0+1",u:"Long term",o:"Gum hypertrophy, monitor level"},
+{n:"Clobazam",c:"Neurology / Antiepileptic",d:"5 mg, 10 mg",f:"0+0+1",u:"Short term",o:"At bedtime"},
+{n:"Gabapentin",c:"Neurology / Antiepileptic",d:"100 mg, 300 mg",f:"1+1+1",u:"Long term",o:"For neuropathic pain"},
+{n:"Pregabalin",c:"Neurology / Antiepileptic",d:"50 mg, 75 mg, 150 mg",f:"1+0+1",u:"Long term",o:"May cause dizziness"},
+{n:"Sumatriptan",c:"Neurology / Antiepileptic",d:"25 mg, 50 mg",f:"PRN",u:"As needed",o:"At migraine onset"},
+{n:"Flunarizine",c:"Neurology / Antiepileptic",d:"5 mg, 10 mg",f:"0+0+1",u:"3 months",o:"Migraine prophylaxis"},
+{n:"Propranolol",c:"Neurology / Antiepileptic",d:"10 mg, 40 mg",f:"1+0+1",u:"Long term",o:"Migraine prophylaxis, tremor"},
+{n:"Amitriptyline",c:"Psychiatry",d:"10 mg, 25 mg",f:"0+0+1",u:"Long term",o:"At bedtime"},
+{n:"Sertraline",c:"Psychiatry",d:"25 mg, 50 mg, 100 mg",f:"1+0+0",u:"Long term",o:"After breakfast"},
+{n:"Fluoxetine",c:"Psychiatry",d:"20 mg",f:"1+0+0",u:"Long term",o:"Morning dose"},
+{n:"Escitalopram",c:"Psychiatry",d:"5 mg, 10 mg, 20 mg",f:"1+0+0",u:"Long term",o:"After meal"},
+{n:"Clonazepam",c:"Psychiatry",d:"0.5 mg, 1 mg",f:"0+0+1",u:"Short term",o:"Risk of dependence"},
+{n:"Olanzapine",c:"Psychiatry",d:"2.5 mg, 5 mg, 10 mg",f:"0+0+1",u:"Long term",o:"Monitor weight and sugar"},
+{n:"Risperidone",c:"Psychiatry",d:"1 mg, 2 mg",f:"0+0+1",u:"Long term",o:"Watch for EPS"},
+{n:"Quetiapine",c:"Psychiatry",d:"25 mg, 100 mg",f:"0+0+1",u:"Long term",o:"At bedtime"},
+{n:"Betahistine",c:"Antivertigo",d:"8 mg, 16 mg, 24 mg",f:"1+1+1",u:"4 weeks",o:"After meal"},
+{n:"Prochlorperazine",c:"Antivertigo",d:"5 mg",f:"1+1+1",u:"5 days",o:"For acute vertigo"},
+{n:"Cinnarizine",c:"Antivertigo",d:"25 mg",f:"1+1+1",u:"2 weeks",o:"After meal"},
+{n:"Tamsulosin",c:"Urology",d:"0.4 mg",f:"0+0+1",u:"Long term",o:"After dinner, postural hypotension"},
+{n:"Finasteride",c:"Urology",d:"5 mg",f:"1+0+0",u:"Long term",o:"For BPH"},
+{n:"Sildenafil",c:"Urology",d:"25 mg, 50 mg, 100 mg",f:"PRN",u:"As needed",o:"Never with nitrates"},
+{n:"Potassium citrate",c:"Urology",d:"10 ml",f:"1+1+1",u:"As advised",o:"Diluted in water"},
+{n:"Solifenacin",c:"Urology",d:"5 mg, 10 mg",f:"1+0+0",u:"Long term",o:"Overactive bladder"},
+{n:"Phenazopyridine",c:"Urology",d:"100 mg, 200 mg",f:"1+1+1",u:"2 days",o:"Colours urine orange"},
+{n:"Mifepristone + Misoprostol",c:"Gynae / Obstetric",d:"As per protocol",f:"As per protocol",u:"As advised",o:"Specialist supervision only"},
+{n:"Tranexamic acid",c:"Gynae / Obstetric",d:"500 mg",f:"1+1+1",u:"3–5 days",o:"For heavy bleeding"},
+{n:"Mefenamic acid",c:"Gynae / Obstetric",d:"250 mg, 500 mg",f:"1+1+1",u:"3 days",o:"For dysmenorrhoea, after meal"},
+{n:"Iron + Folic acid",c:"Gynae / Obstetric",d:"60 mg + 0.4 mg",f:"1+0+0",u:"Ongoing",o:"With vitamin C, not with tea"},
+{n:"Oxytocin",c:"Gynae / Obstetric",d:"5 IU, 10 IU",f:"As per protocol",u:"As needed",o:"IV / IM"},
+{n:"Progesterone",c:"Gynae / Obstetric",d:"100 mg, 200 mg",f:"1+0+1",u:"As advised",o:"Oral or vaginal"},
+{n:"Permethrin cream",c:"Dermatology",d:"5%",f:"Overnight application",u:"Repeat after 7 days",o:"Neck down, treat all contacts"},
+{n:"Benzyl benzoate lotion",c:"Dermatology",d:"25%",f:"Overnight",u:"3 nights",o:"Wash off in the morning"},
+{n:"Mometasone cream",c:"Dermatology",d:"0.1%",f:"1+0+1",u:"2 weeks",o:"Thin layer, avoid face"},
+{n:"Betamethasone cream",c:"Dermatology",d:"0.05%, 0.1%",f:"1+0+1",u:"2 weeks",o:"Short courses only"},
+{n:"Calamine lotion",c:"Dermatology",d:"—",f:"1+1+1",u:"As needed",o:"Soothing for itch"},
+{n:"Mupirocin ointment",c:"Dermatology",d:"2%",f:"1+1+1",u:"7 days",o:"For impetigo"},
+{n:"Fusidic acid cream",c:"Dermatology",d:"2%",f:"1+0+1",u:"7 days",o:"Localised skin infection"},
+{n:"Salicylic acid ointment",c:"Dermatology",d:"6%",f:"0+0+1",u:"As advised",o:"Keratolytic"},
+{n:"Isotretinoin",c:"Dermatology",d:"10 mg, 20 mg",f:"1+0+0",u:"4–6 months",o:"Strictly avoid pregnancy"},
+{n:"Moxifloxacin eye drop",c:"Ophthalmic",d:"0.5%",f:"1 drop 4 times daily",u:"7 days",o:"Do not touch the tip"},
+{n:"Chloramphenicol eye drop",c:"Ophthalmic",d:"0.5%",f:"1 drop 4 times daily",u:"5 days",o:"Both eyes if infective"},
+{n:"Carboxymethylcellulose eye drop",c:"Ophthalmic",d:"0.5%",f:"1 drop 4 times daily",u:"As needed",o:"For dry eye"},
+{n:"Timolol eye drop",c:"Ophthalmic",d:"0.5%",f:"1 drop 1+0+1",u:"Long term",o:"For glaucoma, avoid in asthma"},
+{n:"Ciprofloxacin ear drop",c:"ENT",d:"0.3%",f:"3 drops 1+0+1",u:"7 days",o:"Warm the bottle in hand first"},
+{n:"Xylometazoline nasal drop",c:"ENT",d:"0.05%, 0.1%",f:"2 drops 1+0+1",u:"Max 5 days",o:"Rebound congestion if longer"},
+{n:"Fluticasone nasal spray",c:"ENT",d:"50 mcg",f:"2 sprays 1+0+0",u:"Long term",o:"For allergic rhinitis"},
+{n:"Normal saline nasal spray",c:"ENT",d:"0.9%",f:"As needed",u:"Ongoing",o:"Safe in all ages"},
+{n:"Vitamin B complex",c:"Vitamin / Supplement",d:"1 tablet",f:"1+0+0",u:"1 month",o:"After meal"},
+{n:"Vitamin D3",c:"Vitamin / Supplement",d:"1000 IU, 40000 IU",f:"Weekly or daily",u:"8–12 weeks",o:"With fatty meal"},
+{n:"Calcium + Vitamin D",c:"Vitamin / Supplement",d:"500 mg + 200 IU",f:"1+0+1",u:"Long term",o:"After meal"},
+{n:"Ferrous sulphate",c:"Vitamin / Supplement",d:"200 mg",f:"1+0+1",u:"3 months",o:"Empty stomach, dark stool"},
+{n:"Folic acid",c:"Vitamin / Supplement",d:"5 mg",f:"1+0+0",u:"3 months",o:"After meal"},
+{n:"Vitamin B12 (Cyanocobalamin)",c:"Vitamin / Supplement",d:"500 mcg, 1000 mcg",f:"1+0+0",u:"As advised",o:"Oral or IM"},
+{n:"Pyridoxine",c:"Vitamin / Supplement",d:"10 mg, 40 mg",f:"1+0+0",u:"With anti-TB",o:"Prevents INH neuropathy"},
+{n:"Zinc supplement",c:"Vitamin / Supplement",d:"20 mg",f:"1+0+0",u:"14 days",o:"After meal"},
+{n:"Multivitamin syrup",c:"Vitamin / Supplement",d:"5 ml",f:"1+0+1",u:"1 month",o:"Paediatric"},
+{n:"Normal saline 0.9%",c:"IV fluid",d:"500 ml, 1000 ml",f:"As per chart",u:"As needed",o:"Isotonic, first-line resuscitation"},
+{n:"Ringer's lactate / Hartmann's",c:"IV fluid",d:"500 ml, 1000 ml",f:"As per chart",u:"As needed",o:"Avoid in liver failure"},
+{n:"5% Dextrose in water",c:"IV fluid",d:"500 ml, 1000 ml",f:"As per chart",u:"As needed",o:"Free water, avoid in head injury"},
+{n:"5% Dextrose in normal saline",c:"IV fluid",d:"500 ml, 1000 ml",f:"As per chart",u:"As needed",o:"Maintenance with calories"},
+{n:"Cholera saline",c:"IV fluid",d:"1000 ml",f:"As per plan C",u:"Until rehydrated",o:"Severe dehydration"},
+{n:"Tetanus toxoid",c:"Vaccine",d:"0.5 ml",f:"Stat",u:"As per schedule",o:"IM deltoid"},
+{n:"Rabies vaccine",c:"Vaccine",d:"0.5 ml / 1 ml",f:"Day 0,3,7,14,28",u:"As per schedule",o:"Wash wound thoroughly first"},
+{n:"Hepatitis B vaccine",c:"Vaccine",d:"1 ml",f:"0, 1, 6 months",u:"3 doses",o:"IM deltoid"},
+{n:"Colchicine",c:"Analgesic / NSAID",d:"0.5 mg",f:"1+0+1",u:"5 days",o:"Stop if diarrhoea"},
+{n:"Allopurinol",c:"Analgesic / NSAID",d:"100 mg, 300 mg",f:"1+0+0",u:"Long term",o:"Never start during acute gout"},
+{n:"Febuxostat",c:"Analgesic / NSAID",d:"40 mg, 80 mg",f:"1+0+0",u:"Long term",o:"Alternative to allopurinol"},
+{n:"Diclofenac gel",c:"Analgesic / NSAID",d:"1%",f:"1+1+1",u:"2 weeks",o:"Topical, safer than oral"},
+{n:"Methotrexate",c:"Other",d:"2.5 mg, 7.5 mg, 10 mg",f:"Once weekly",u:"Long term",o:"WEEKLY only — never daily"},
+{n:"Hydroxychloroquine",c:"Other",d:"200 mg, 400 mg",f:"1+0+1",u:"Long term",o:"Annual eye check"},
+{n:"Sulfasalazine",c:"Other",d:"500 mg",f:"1+0+1",u:"Long term",o:"After meal"},
+{n:"Azathioprine",c:"Other",d:"50 mg",f:"1+0+0",u:"Long term",o:"Monitor CBC and LFT"},
+{n:"Ursodeoxycholic acid",c:"Other",d:"150 mg, 300 mg",f:"1+0+1",u:"As advised",o:"For cholestatic itch"},
+{n:"Vitamin K (Phytomenadione)",c:"Vitamin / Supplement",d:"10 mg",f:"1+0+0",u:"3 days",o:"IM, corrects prolonged PT"},
+{n:"Sodium bicarbonate",c:"Vitamin / Supplement",d:"500 mg",f:"1+1+1",u:"Long term",o:"For metabolic acidosis"},
+{n:"Potassium chloride",c:"IV fluid",d:"20–40 mmol/L",f:"With IV fluid",u:"As per level",o:"Never IV push, confirm urine output"},
+{n:"Calcium gluconate",c:"IV fluid",d:"10 ml of 10%",f:"Slow IV",u:"As needed",o:"For hyperkalaemia or tetany"},
+{n:"Magnesium sulphate",c:"IV fluid",d:"4 g loading",f:"As per protocol",u:"24 hours",o:"Eclampsia, severe asthma"},
+{n:"Warm saline gargle",c:"ENT",d:"—",f:"1+1+1",u:"7 days",o:"For sore throat"},
+{n:"Betamethasone nasal drop",c:"ENT",d:"0.1%",f:"2 drops 1+0+1",u:"2 weeks",o:"Short course"},
+{n:"Silver sulfadiazine cream",c:"Dermatology",d:"1%",f:"1+0+1",u:"As advised",o:"For burns"},
+{n:"Coal tar ointment",c:"Dermatology",d:"—",f:"0+0+1",u:"As advised",o:"For psoriasis"},
+{n:"Tacrolimus ointment",c:"Dermatology",d:"0.03%, 0.1%",f:"1+0+1",u:"As advised",o:"Steroid-sparing"},
+{n:"Prednisolone eye drop",c:"Ophthalmic",d:"1%",f:"1 drop 4 times daily",u:"As advised",o:"Ophthalmologist supervision"},
+{n:"Latanoprost eye drop",c:"Ophthalmic",d:"0.005%",f:"1 drop 0+0+1",u:"Long term",o:"For glaucoma"},
+{n:"Ivabradine",c:"Antianginal / Cardiac",d:"5 mg",f:"1+0+1",u:"Long term",o:"With meal"},
+{n:"Amiodarone",c:"Antianginal / Cardiac",d:"100 mg, 200 mg",f:"1+0+0",u:"Long term",o:"Monitor thyroid and LFT"},
+{n:"Adrenaline (Epinephrine)",c:"Other",d:"0.5 mg of 1:1000",f:"Stat, repeat 5 min",u:"As needed",o:"IM anterolateral thigh in anaphylaxis"},
+{n:"Atropine",c:"Other",d:"0.6 mg",f:"Stat",u:"As needed",o:"IV for bradycardia"},
+{n:"Naloxone",c:"Other",d:"0.4 mg",f:"Stat",u:"As needed",o:"Opioid reversal"},
+{n:"Activated charcoal",c:"Other",d:"50 g",f:"Stat",u:"Single dose",o:"Within 1 hour of poisoning"},
+{n:"N-acetylcysteine (antidote)",c:"Other",d:"As per protocol",f:"IV infusion",u:"21 hours",o:"Paracetamol overdose"},
+{n:"Anti-snake venom",c:"Other",d:"10 vials",f:"As per protocol",u:"As needed",o:"Keep adrenaline ready"},
+{n:"Tetanus immunoglobulin",c:"Vaccine",d:"250 IU",f:"Stat",u:"Single dose",o:"IM, different site from toxoid"},
+{n:"Rabies immunoglobulin",c:"Vaccine",d:"20 IU/kg",f:"Stat",u:"Single dose",o:"Infiltrate around the wound"}
+];
+
+const INV_CATS=["Haematology","Biochemistry","Serology / Immunology","Microbiology","Urine & Stool","Imaging — X-ray","Imaging — Ultrasound","Imaging — CT / MRI","Cardiology","Endoscopy","Histopathology / Cytology","Pulmonary","Other"];
+
+const INVS=[
+{n:"Complete Blood Count (CBC) with ESR",c:"Haematology"},{n:"Haemoglobin (Hb%)",c:"Haematology"},
+{n:"Total Count (TC) & Differential Count (DC)",c:"Haematology"},{n:"Platelet count",c:"Haematology"},
+{n:"Peripheral Blood Film (PBF)",c:"Haematology"},{n:"Reticulocyte count",c:"Haematology"},
+{n:"Blood grouping & Rh typing",c:"Haematology"},{n:"Prothrombin Time (PT) with INR",c:"Haematology"},
+{n:"APTT",c:"Haematology"},{n:"Bleeding time & Clotting time",c:"Haematology"},
+{n:"D-dimer",c:"Haematology"},{n:"Haemoglobin electrophoresis",c:"Haematology"},
+{n:"Serum ferritin",c:"Haematology"},{n:"Serum iron & TIBC",c:"Haematology"},
+{n:"Bone marrow aspiration & biopsy",c:"Haematology"},{n:"G6PD screening",c:"Haematology"},
+{n:"Coombs test (direct & indirect)",c:"Haematology"},
+{n:"Fasting Blood Sugar (FBS)",c:"Biochemistry"},{n:"2 hours after breakfast blood sugar (2HABF)",c:"Biochemistry"},
+{n:"Random Blood Sugar (RBS)",c:"Biochemistry"},{n:"HbA1c",c:"Biochemistry"},
+{n:"Oral Glucose Tolerance Test (OGTT)",c:"Biochemistry"},{n:"Serum creatinine",c:"Biochemistry"},
+{n:"Blood Urea / BUN",c:"Biochemistry"},{n:"eGFR",c:"Biochemistry"},
+{n:"Serum electrolytes (Na, K, Cl, HCO₃)",c:"Biochemistry"},{n:"Serum calcium & phosphate",c:"Biochemistry"},
+{n:"Serum magnesium",c:"Biochemistry"},{n:"Serum uric acid",c:"Biochemistry"},
+{n:"Liver Function Test (LFT)",c:"Biochemistry"},{n:"Serum bilirubin (total & direct)",c:"Biochemistry"},
+{n:"SGPT (ALT) & SGOT (AST)",c:"Biochemistry"},{n:"Serum alkaline phosphatase",c:"Biochemistry"},
+{n:"Gamma GT (GGT)",c:"Biochemistry"},{n:"Serum total protein & albumin",c:"Biochemistry"},
+{n:"Serum amylase",c:"Biochemistry"},{n:"Serum lipase",c:"Biochemistry"},
+{n:"Lipid profile (fasting)",c:"Biochemistry"},{n:"Thyroid Function Test (TSH, FT3, FT4)",c:"Biochemistry"},
+{n:"Serum cortisol",c:"Biochemistry"},{n:"Serum vitamin D (25-OH)",c:"Biochemistry"},
+{n:"Serum vitamin B12 & folate",c:"Biochemistry"},{n:"Arterial Blood Gas (ABG)",c:"Biochemistry"},
+{n:"Serum lactate",c:"Biochemistry"},{n:"Serum ammonia",c:"Biochemistry"},
+{n:"Troponin I / T",c:"Cardiology"},{n:"CK-MB",c:"Cardiology"},{n:"NT-proBNP",c:"Cardiology"},
+{n:"ECG (12 lead)",c:"Cardiology"},{n:"Echocardiography (colour Doppler)",c:"Cardiology"},
+{n:"Exercise Tolerance Test (ETT)",c:"Cardiology"},{n:"Holter monitoring (24 h)",c:"Cardiology"},
+{n:"Coronary angiogram",c:"Cardiology"},
+{n:"C-Reactive Protein (CRP)",c:"Serology / Immunology"},{n:"Procalcitonin",c:"Serology / Immunology"},
+{n:"Widal test",c:"Serology / Immunology"},{n:"Typhidot IgM & IgG",c:"Serology / Immunology"},
+{n:"Dengue NS1 antigen",c:"Serology / Immunology"},{n:"Dengue IgM & IgG",c:"Serology / Immunology"},
+{n:"Malarial parasite (MP) — ICT & slide",c:"Serology / Immunology"},{n:"HBsAg",c:"Serology / Immunology"},
+{n:"Anti-HCV",c:"Serology / Immunology"},{n:"Anti-HAV IgM",c:"Serology / Immunology"},
+{n:"Anti-HEV IgM",c:"Serology / Immunology"},{n:"HIV screening (ICT / ELISA)",c:"Serology / Immunology"},
+{n:"VDRL / TPHA",c:"Serology / Immunology"},{n:"Rheumatoid Factor (RA test)",c:"Serology / Immunology"},
+{n:"Anti-CCP antibody",c:"Serology / Immunology"},{n:"ANA (Antinuclear antibody)",c:"Serology / Immunology"},
+{n:"Anti-dsDNA",c:"Serology / Immunology"},{n:"ASO titre",c:"Serology / Immunology"},
+{n:"Serum IgE (total)",c:"Serology / Immunology"},{n:"Anti-TPO antibody",c:"Serology / Immunology"},
+{n:"Beta hCG (serum / urine)",c:"Serology / Immunology"},
+{n:"Blood culture & sensitivity",c:"Microbiology"},{n:"Urine culture & sensitivity",c:"Microbiology"},
+{n:"Sputum for AFB (2 samples)",c:"Microbiology"},{n:"Sputum GeneXpert MTB/RIF",c:"Microbiology"},
+{n:"Sputum culture & sensitivity",c:"Microbiology"},{n:"Throat swab culture",c:"Microbiology"},
+{n:"Wound swab culture & sensitivity",c:"Microbiology"},{n:"Stool culture & sensitivity",c:"Microbiology"},
+{n:"Pus culture & sensitivity",c:"Microbiology"},{n:"CSF study (routine, culture, biochemistry)",c:"Microbiology"},
+{n:"Mantoux test (TST)",c:"Microbiology"},{n:"Gram stain",c:"Microbiology"},
+{n:"KOH mount for fungus",c:"Microbiology"},
+{n:"Urine R/E (routine & microscopic)",c:"Urine & Stool"},{n:"Urine for albumin",c:"Urine & Stool"},
+{n:"24-hour urinary total protein",c:"Urine & Stool"},{n:"Urine albumin creatinine ratio (ACR)",c:"Urine & Stool"},
+{n:"Urine for ketone bodies",c:"Urine & Stool"},{n:"Urine for bile salt & bile pigment",c:"Urine & Stool"},
+{n:"Stool R/E (routine & microscopic)",c:"Urine & Stool"},{n:"Stool for occult blood",c:"Urine & Stool"},
+{n:"Stool for reducing substance",c:"Urine & Stool"},
+{n:"Chest X-ray P/A view",c:"Imaging — X-ray"},{n:"Chest X-ray lateral view",c:"Imaging — X-ray"},
+{n:"X-ray abdomen erect & supine",c:"Imaging — X-ray"},{n:"X-ray KUB",c:"Imaging — X-ray"},
+{n:"X-ray of affected joint (AP & lateral)",c:"Imaging — X-ray"},{n:"X-ray cervical spine",c:"Imaging — X-ray"},
+{n:"X-ray lumbosacral spine",c:"Imaging — X-ray"},{n:"X-ray paranasal sinuses (PNS)",c:"Imaging — X-ray"},
+{n:"X-ray skull",c:"Imaging — X-ray"},{n:"Barium meal / swallow",c:"Imaging — X-ray"},
+{n:"Barium enema",c:"Imaging — X-ray"},{n:"IVU (Intravenous urogram)",c:"Imaging — X-ray"},
+{n:"Ultrasonography of whole abdomen",c:"Imaging — Ultrasound"},{n:"USG of hepatobiliary system",c:"Imaging — Ultrasound"},
+{n:"USG KUB with prostate",c:"Imaging — Ultrasound"},{n:"USG of pregnancy profile",c:"Imaging — Ultrasound"},
+{n:"USG of lower abdomen",c:"Imaging — Ultrasound"},{n:"USG of thyroid gland",c:"Imaging — Ultrasound"},
+{n:"USG of scrotum",c:"Imaging — Ultrasound"},{n:"USG of breast",c:"Imaging — Ultrasound"},
+{n:"USG of soft tissue / local part",c:"Imaging — Ultrasound"},{n:"Doppler study of limb vessels",c:"Imaging — Ultrasound"},
+{n:"CT scan of brain (plain)",c:"Imaging — CT / MRI"},{n:"CT scan of brain with contrast",c:"Imaging — CT / MRI"},
+{n:"CT scan of abdomen with contrast",c:"Imaging — CT / MRI"},{n:"CT scan of chest (HRCT)",c:"Imaging — CT / MRI"},
+{n:"CT urogram",c:"Imaging — CT / MRI"},{n:"CT pulmonary angiogram (CTPA)",c:"Imaging — CT / MRI"},
+{n:"MRI of brain",c:"Imaging — CT / MRI"},{n:"MRI of spine",c:"Imaging — CT / MRI"},
+{n:"MRCP",c:"Imaging — CT / MRI"},{n:"MRI of knee / joint",c:"Imaging — CT / MRI"},
+{n:"Upper GI endoscopy (OGD)",c:"Endoscopy"},{n:"Colonoscopy",c:"Endoscopy"},
+{n:"Sigmoidoscopy",c:"Endoscopy"},{n:"ERCP",c:"Endoscopy"},
+{n:"Bronchoscopy",c:"Endoscopy"},{n:"Cystoscopy",c:"Endoscopy"},
+{n:"Rapid urease test (for H. pylori)",c:"Endoscopy"},
+{n:"FNAC of the swelling",c:"Histopathology / Cytology"},{n:"Excisional biopsy with histopathology",c:"Histopathology / Cytology"},
+{n:"Trucut biopsy",c:"Histopathology / Cytology"},{n:"Pleural fluid study (cytology & biochemistry)",c:"Histopathology / Cytology"},
+{n:"Ascitic fluid study with SAAG",c:"Histopathology / Cytology"},{n:"Pap smear",c:"Histopathology / Cytology"},
+{n:"Spirometry with reversibility test",c:"Pulmonary"},{n:"Peak Expiratory Flow Rate (PEFR)",c:"Pulmonary"},
+{n:"Pulse oximetry",c:"Pulmonary"},
+{n:"Ophthalmoscopy / fundoscopy",c:"Other"},{n:"Audiometry",c:"Other"},
+{n:"Nerve conduction study (NCS) & EMG",c:"Other"},{n:"EEG",c:"Other"},
+{n:"DEXA scan (bone mineral density)",c:"Other"},{n:"Skin scraping for mite",c:"Other"},
+{n:"Haematocrit (PCV)",c:"Haematology"},{n:"Absolute eosinophil count",c:"Haematology"},
+{n:"Serum PSA",c:"Biochemistry"},{n:"Uroflowmetry",c:"Other"},
+{n:"Joint aspiration for crystals & culture",c:"Histopathology / Cytology"},
+{n:"Renal biopsy",c:"Histopathology / Cytology"},{n:"Liver biopsy",c:"Histopathology / Cytology"},
+{n:"Otoscopic examination",c:"Other"},{n:"Thyroid scan (radioiodine uptake)",c:"Other"},
+{n:"Blood glucose (RBS)",c:"Biochemistry"},{n:"Serum LDH",c:"Biochemistry"},
+{n:"Serum CPK",c:"Biochemistry"},{n:"Serum osmolality",c:"Biochemistry"},
+{n:"CA 19-9",c:"Biochemistry"},{n:"CEA",c:"Biochemistry"},{n:"Alpha-fetoprotein (AFP)",c:"Biochemistry"},
+{n:"PSA (free & total)",c:"Biochemistry"},{n:"CA 125",c:"Biochemistry"},
+{n:"Serum parathyroid hormone (PTH)",c:"Biochemistry"},{n:"Serum prolactin",c:"Biochemistry"},
+{n:"FSH, LH & testosterone",c:"Biochemistry"},{n:"Semen analysis",c:"Other"},
+{n:"Sweat chloride test",c:"Other"},{n:"Slit lamp examination",c:"Other"},
+{n:"Visual acuity & field testing",c:"Other"},{n:"Tympanometry",c:"Other"},
+{n:"Nasal endoscopy",c:"Endoscopy"},{n:"Laryngoscopy",c:"Endoscopy"},
+{n:"Mammography",c:"Imaging — X-ray"},{n:"HSG (Hysterosalpingography)",c:"Imaging — X-ray"},
+{n:"MCU (Micturating cystourethrogram)",c:"Imaging — X-ray"},
+{n:"USG of neck / salivary gland",c:"Imaging — Ultrasound"},
+{n:"Transvaginal ultrasound (TVS)",c:"Imaging — Ultrasound"},
+{n:"Carotid Doppler",c:"Imaging — Ultrasound"},{n:"Echocardiography — stress",c:"Cardiology"},
+{n:"CT angiogram of brain",c:"Imaging — CT / MRI"},{n:"MR angiogram",c:"Imaging — CT / MRI"},
+{n:"Whole body bone scan",c:"Other"},{n:"PET-CT scan",c:"Other"},
+{n:"Ascitic fluid for AFB & ADA",c:"Histopathology / Cytology"},
+{n:"Pleural fluid for ADA",c:"Histopathology / Cytology"},
+{n:"Lymph node biopsy",c:"Histopathology / Cytology"},
+{n:"Skin biopsy",c:"Histopathology / Cytology"},
+{n:"Endometrial biopsy",c:"Histopathology / Cytology"},
+{n:"Urine for culture (catheter specimen)",c:"Microbiology"},
+{n:"Stool for Helicobacter pylori antigen",c:"Microbiology"},
+{n:"Serum H. pylori IgG",c:"Serology / Immunology"},
+{n:"Urea breath test",c:"Other"},{n:"Coeliac serology (anti-tTG IgA)",c:"Serology / Immunology"},
+{n:"Serum ANCA",c:"Serology / Immunology"}
+];
+
+const SYMPTOMS=["Fever","Fever with chills and rigor","Low grade fever","Evening rise of temperature","Headache","Body ache","Malaise","Fatigue","Weakness","Weight loss","Weight gain","Loss of appetite","Night sweats","Cough","Dry cough","Productive cough","Haemoptysis","Shortness of breath","Breathlessness on exertion","Orthopnoea","Paroxysmal nocturnal dyspnoea","Wheeze","Chest pain","Chest tightness","Central crushing chest pain","Pleuritic chest pain","Palpitation","Sore throat","Hoarseness of voice","Runny nose","Nasal blockage","Sneezing","Abdominal pain","Epigastric pain","Right upper abdominal pain","Right lower abdominal pain","Left lower abdominal pain","Periumbilical pain","Colicky abdominal pain","Abdominal distension","Nausea","Vomiting","Vomiting of blood (haematemesis)","Heartburn","Water brash","Belching","Indigestion","Dysphagia","Odynophagia","Diarrhoea","Loose motion with mucus","Blood in stool","Black tarry stool (melaena)","Constipation","Pale coloured stool","Tenesmus","Jaundice","Yellow colouration of eyes","Dark coloured urine","Generalised itching","Swelling of body","Swelling of legs","Facial puffiness","Burning micturition","Increased frequency of urination","Urgency of micturition","Blood in urine","Decreased urine output","Increased urine output","Passing urine at night","Poor urinary stream","Retention of urine","Loin pain","Excessive thirst","Excessive hunger","Dizziness","Vertigo","Fainting attack","Loss of consciousness","Convulsion","Weakness of one side of body","Slurring of speech","Numbness","Tingling sensation","Tremor","Memory loss","Difficulty in walking","Blurring of vision","Double vision","Redness of eye","Watering of eye","Pain in eye","Loss of vision","Ear pain","Ear discharge","Ringing in ear (tinnitus)","Hearing loss","Joint pain","Multiple joint pain","Morning stiffness","Joint swelling","Low back pain","Neck pain","Muscle pain","Muscle cramps","Skin rash","Itching of skin","Skin lesion","Boil","Hair loss","Nail changes","Swelling / lump","Neck swelling","Bleeding gums","Nose bleeding (epistaxis)","Easy bruising","Anxiety","Low mood","Insomnia","Excessive sleepiness","Irritability","Heat intolerance","Cold intolerance","Menstrual irregularity","Excessive menstrual bleeding","Painful menstruation","Absent menstruation","Vaginal discharge","White discharge per vagina","Infertility","Scrotal pain","Scrotal swelling","Erectile dysfunction","Breast lump","Nipple discharge","Poor feeding (infant)","Excessive crying (infant)","Failure to thrive","Delayed milestones","Refusal of feed","Recent travel history","Contact with TB patient","History of trauma","Animal bite","Snake bite","Drug reaction"];
+
+const SIGNS=["Anaemia (pallor)","Severe pallor","Jaundice","Deep jaundice","Cyanosis","Clubbing","Koilonychia","Leuconychia","Oedema","Pitting pedal oedema","Periorbital puffiness","Generalised anasarca","Dehydration","Severe dehydration","Cachexia","Obesity","Lymphadenopathy","Cervical lymphadenopathy","Generalised lymphadenopathy","Fever (documented)","High grade fever","Toxic look","Coated tongue","Relative bradycardia","Rose spots","Skin rash","Maculopapular rash","Petechiae","Purpura","Ecchymosis","Urticarial wheals","Scratch marks","Burrow (skin)","Vesicles","Pustules","Ulcer","Cellulitis","Tachycardia","Bradycardia","Irregularly irregular pulse","Feeble pulse","Raised blood pressure","Low blood pressure","Postural hypotension","Raised JVP","Displaced apex beat","Heaving apex beat","Systolic murmur","Diastolic murmur","Pansystolic murmur","Ejection systolic murmur","S3 gallop","S4 gallop","Pericardial rub","Tachypnoea","Use of accessory muscles","Reduced chest movement","Dull percussion note","Hyperresonant percussion note","Diminished breath sound","Bronchial breath sound","Crepitations","Fine basal crepitations","Coarse crepitations","Rhonchi","Wheeze","Pleural rub","Vocal resonance increased","Stridor","Abdominal distension","Abdominal tenderness","Epigastric tenderness","Right hypochondriac tenderness","Right iliac fossa tenderness","Rebound tenderness","Guarding","Rigidity","Murphy's sign positive","Rovsing's sign positive","Psoas sign positive","Palpable gallbladder (Courvoisier)","Hepatomegaly","Tender hepatomegaly","Splenomegaly","Hepatosplenomegaly","Ascites","Shifting dullness","Fluid thrill","Bowel sound absent","Bowel sound exaggerated","Visible peristalsis","Palpable mass in abdomen","Renal angle tenderness","Suprapubic tenderness","Palpable bladder","Enlarged prostate on PR","Hernia present","Testicular tenderness","Neck rigidity","Kernig's sign positive","Brudzinski's sign positive","Altered consciousness","Glasgow Coma Scale reduced","Disorientation","Hemiparesis","Facial palsy","Exaggerated deep tendon reflexes","Diminished deep tendon reflexes","Plantar extensor (Babinski positive)","Loss of sensation","Muscle wasting","Tremor","Ataxic gait","Papilloedema","Pupil abnormality","Nystagmus","Thyroid enlargement (goitre)","Exophthalmos","Lid lag","Joint swelling","Joint tenderness","Restricted joint movement","Joint deformity","Ulnar deviation","Bouchard's / Heberden's nodes","Tophi","Spine tenderness","Straight leg raising restricted","Breast lump palpable","Uterus palpable per abdomen","Cervical motion tenderness"];
+
+/* ============ CLINICAL KNOWLEDGE BASE ============ */
+/* kw = trigger findings (symptoms/signs/free text). Scored by match count. */
+const KB=[
+{dx:"Enteric fever (Typhoid)",sys:"Infectious",
+kw:["fever","chills","rigor","step ladder","headache","abdominal pain","constipation","diarrhoea","coated tongue","relative bradycardia","splenomegaly","rose spots","toxic look","loss of appetite","malaise","body ache","hepatosplenomegaly"],
+inv:["Complete Blood Count (CBC) with ESR","Blood culture & sensitivity","Typhidot IgM & IgG","Widal test","Urine R/E (routine & microscopic)","SGPT (ALT) & SGOT (AST)","Ultrasonography of whole abdomen"],
+rx:[{n:"Ceftriaxone",d:"2 g",f:"1+0+0",u:"10–14 days",r:"IV",w:"First-line for confirmed enteric fever"},{n:"Cefixime",d:"200 mg",f:"1+0+1",u:"14 days",r:"Oral",w:"Oral step-down option"},{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"As needed",r:"Oral",w:"For fever, avoid NSAIDs"},{n:"ORS sachet",d:"1 sachet",f:"After each stool",u:"As needed",r:"Oral",w:"Maintain hydration"}],
+adv:"Complete bed rest, soft low-residue diet, plenty of fluids. Warn about perforation and bleeding — report severe abdominal pain, black stool or persistent vomiting immediately."},
+
+{dx:"Dengue fever",sys:"Infectious",
+kw:["fever","headache","body ache","retro-orbital","muscle pain","joint pain","skin rash","maculopapular rash","petechiae","nausea","vomiting","bleeding gums","nose bleeding","epistaxis","easy bruising","low blood pressure","abdominal pain","weakness"],
+inv:["Complete Blood Count (CBC) with ESR","Platelet count","Dengue NS1 antigen","Dengue IgM & IgG","Haematocrit (PCV) serial","SGPT (ALT) & SGOT (AST)","Ultrasonography of whole abdomen"],
+rx:[{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"As needed",r:"Oral",w:"Only antipyretic — never NSAIDs or aspirin"},{n:"ORS sachet",d:"1 sachet",f:"Frequently",u:"Until recovery",r:"Oral",w:"Aggressive oral fluid"},{n:"Normal saline 0.9%",d:"500 ml",f:"As per chart",u:"If warning signs",r:"IV",w:"For plasma leakage or shock"}],
+adv:"Strictly avoid aspirin and NSAIDs. Monitor daily platelet count and haematocrit. Return immediately for severe abdominal pain, persistent vomiting, bleeding, restlessness or reduced urine output."},
+
+{dx:"Malaria",sys:"Infectious",
+kw:["fever","chills","rigor","sweating","periodic fever","headache","splenomegaly","anaemia","pallor","jaundice","vomiting","travel history","hill tract","weakness"],
+inv:["Malarial parasite (MP) — ICT & slide","Complete Blood Count (CBC) with ESR","Peripheral Blood Film (PBF)","Serum bilirubin (total & direct)","Serum creatinine","Blood glucose (RBS)"],
+rx:[{n:"Artemether + Lumefantrine",d:"20/120 mg",f:"1+0+1",u:"3 days",r:"Oral",w:"First-line for uncomplicated falciparum"},{n:"Primaquine",d:"15 mg",f:"1+0+0",u:"14 days",r:"Oral",w:"For vivax — check G6PD first"},{n:"Artesunate injection",d:"60 mg",f:"0, 12, 24 h then daily",u:"Until oral tolerated",r:"IV",w:"For severe malaria"},{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"As needed",r:"Oral",w:"For fever"}],
+adv:"Complete the full course even after fever settles. Sleep under an insecticide-treated net. Return if drowsy, passing dark urine or unable to take orally."},
+
+{dx:"Upper respiratory tract infection (URTI)",sys:"Respiratory",
+kw:["fever","sore throat","runny nose","nasal blockage","sneezing","cough","dry cough","headache","body ache","malaise","hoarseness"],
+inv:["Complete Blood Count (CBC) with ESR","Throat swab culture"],
+rx:[{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"For fever and pain"},{n:"Cetirizine",d:"10 mg",f:"0+0+1",u:"5 days",r:"Oral",w:"For rhinorrhoea"},{n:"Normal saline nasal spray",d:"0.9%",f:"As needed",u:"5 days",r:"Nasal spray",w:"Relieves blockage"},{n:"Warm saline gargle",d:"—",f:"1+1+1",u:"5 days",r:"Oral",w:"For sore throat"}],
+adv:"Mostly viral — antibiotics are usually not needed. Steam inhalation, warm fluids and rest. Return if fever persists beyond 5 days or breathing becomes difficult."},
+
+{dx:"Acute tonsillitis / bacterial pharyngitis",sys:"Respiratory",
+kw:["sore throat","fever","odynophagia","dysphagia","cervical lymphadenopathy","lymphadenopathy","headache","tonsil","exudate","hoarseness"],
+inv:["Complete Blood Count (CBC) with ESR","Throat swab culture","ASO titre","C-Reactive Protein (CRP)"],
+rx:[{n:"Amoxicillin + Clavulanic acid",d:"625 mg",f:"1+0+1",u:"7 days",r:"Oral",w:"First-line"},{n:"Azithromycin",d:"500 mg",f:"1+0+0",u:"3 days",r:"Oral",w:"If penicillin allergic"},{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"Analgesic and antipyretic"},{n:"Warm saline gargle",d:"—",f:"1+1+1",u:"7 days",r:"Oral",w:"Symptomatic relief"}],
+adv:"Complete the antibiotic course to prevent rheumatic fever and glomerulonephritis. Soft cool diet, plenty of fluids."},
+
+{dx:"Community-acquired pneumonia",sys:"Respiratory",
+kw:["fever","cough","productive cough","shortness of breath","breathlessness","chest pain","pleuritic","tachypnoea","crepitations","bronchial breath sound","dull percussion","chills","rigor","tachycardia","cyanosis"],
+inv:["Chest X-ray P/A view","Complete Blood Count (CBC) with ESR","Sputum culture & sensitivity","Blood culture & sensitivity","C-Reactive Protein (CRP)","Pulse oximetry","Arterial Blood Gas (ABG)","Serum electrolytes (Na, K, Cl, HCO₃)"],
+rx:[{n:"Amoxicillin + Clavulanic acid",d:"625 mg",f:"1+0+1",u:"7 days",r:"Oral",w:"First-line for outpatient CAP"},{n:"Azithromycin",d:"500 mg",f:"1+0+0",u:"5 days",r:"Oral",w:"Covers atypical organisms"},{n:"Ceftriaxone",d:"1 g",f:"1+0+1",u:"7 days",r:"IV",w:"For inpatient or severe CAP"},{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"As needed",r:"Oral",w:"For fever"},{n:"Ambroxol",d:"30 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"Mucolytic"}],
+adv:"Complete the full antibiotic course. Adequate hydration, chest physiotherapy and deep breathing exercise. Repeat chest X-ray after 6 weeks."},
+
+{dx:"Pulmonary tuberculosis",sys:"Respiratory",
+kw:["cough","chronic cough","haemoptysis","evening rise of temperature","night sweats","weight loss","loss of appetite","fever","low grade fever","contact with tb","chest pain","lymphadenopathy","crepitations","cachexia","malaise"],
+inv:["Chest X-ray P/A view","Sputum for AFB (2 samples)","Sputum GeneXpert MTB/RIF","Complete Blood Count (CBC) with ESR","Mantoux test (TST)","HIV screening (ICT / ELISA)","Fasting Blood Sugar (FBS)","Liver Function Test (LFT)"],
+rx:[{n:"Anti-TB FDC (4-drug)",d:"Weight-band",f:"1+0+0",u:"2 months intensive",r:"Oral",w:"Empty stomach — HRZE"},{n:"Anti-TB FDC (2-drug)",d:"Weight-band",f:"1+0+0",u:"4 months continuation",r:"Oral",w:"HR phase"},{n:"Pyridoxine",d:"10 mg",f:"1+0+0",u:"6 months",r:"Oral",w:"Prevents INH neuropathy"}],
+adv:"Register at the nearest DOTS centre and never miss a dose. Rifampicin turns urine orange — this is harmless. Screen all household contacts. Report jaundice, vomiting or visual change immediately."},
+
+{dx:"Bronchial asthma (acute exacerbation)",sys:"Respiratory",
+kw:["shortness of breath","breathlessness","wheeze","rhonchi","cough","dry cough","chest tightness","use of accessory muscles","tachypnoea","nocturnal","allergy","seasonal","hyperresonant"],
+inv:["Peak Expiratory Flow Rate (PEFR)","Spirometry with reversibility test","Chest X-ray P/A view","Complete Blood Count (CBC) with ESR","Pulse oximetry","Serum IgE (total)","Arterial Blood Gas (ABG)"],
+rx:[{n:"Salbutamol nebulisation",d:"2.5 mg",f:"Every 6 hours",u:"As needed",r:"Inhalation",w:"Acute relief"},{n:"Ipratropium nebulisation",d:"500 mcg",f:"Every 6 hours",u:"48 hours",r:"Inhalation",w:"Added in moderate–severe attack"},{n:"Prednisolone",d:"40 mg",f:"1+0+0",u:"5 days",r:"Oral",w:"Short course, no taper needed"},{n:"Budesonide + Formoterol inhaler",d:"160/4.5 mcg",f:"2 puffs 1+0+1",u:"Long term",r:"Inhalation",w:"Maintenance — rinse mouth"},{n:"Montelukast",d:"10 mg",f:"0+0+1",u:"Long term",r:"Oral",w:"Add-on control"}],
+adv:"Always carry the reliever inhaler. Use a spacer and rinse the mouth after steroid inhaler. Avoid dust, smoke, cold air and known triggers. Come to hospital if the reliever stops working."},
+
+{dx:"COPD with acute exacerbation",sys:"Respiratory",
+kw:["shortness of breath","breathlessness on exertion","chronic cough","productive cough","wheeze","rhonchi","smoking","barrel chest","hyperresonant","cyanosis","clubbing","use of accessory muscles","tachypnoea"],
+inv:["Chest X-ray P/A view","Spirometry with reversibility test","Arterial Blood Gas (ABG)","Complete Blood Count (CBC) with ESR","Sputum culture & sensitivity","ECG (12 lead)","Echocardiography (colour Doppler)"],
+rx:[{n:"Salbutamol nebulisation",d:"2.5 mg",f:"Every 6 hours",u:"As needed",r:"Inhalation",w:"Bronchodilator"},{n:"Prednisolone",d:"30 mg",f:"1+0+0",u:"5 days",r:"Oral",w:"Reduces exacerbation duration"},{n:"Amoxicillin + Clavulanic acid",d:"625 mg",f:"1+0+1",u:"7 days",r:"Oral",w:"If sputum is purulent"},{n:"Tiotropium inhaler",d:"18 mcg",f:"1+0+0",u:"Long term",r:"Inhalation",w:"Maintenance"}],
+adv:"Complete smoking cessation is the single most important step. Annual influenza and pneumococcal vaccination. Pulmonary rehabilitation and breathing exercises."},
+
+{dx:"Acute gastroenteritis",sys:"Gastrointestinal",
+kw:["diarrhoea","loose motion","vomiting","nausea","abdominal pain","colicky abdominal pain","fever","dehydration","weakness","bowel sound exaggerated","abdominal tenderness","loss of appetite"],
+inv:["Stool R/E (routine & microscopic)","Complete Blood Count (CBC) with ESR","Serum electrolytes (Na, K, Cl, HCO₃)","Serum creatinine","Stool culture & sensitivity"],
+rx:[{n:"ORS sachet",d:"1 sachet in 500 ml",f:"After each loose stool",u:"Until diarrhoea stops",r:"Oral",w:"Cornerstone of treatment"},{n:"Zinc sulphate",d:"20 mg",f:"1+0+0",u:"14 days",r:"Oral",w:"Especially in children"},{n:"Metronidazole",d:"400 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"If amoebic or giardial"},{n:"Ciprofloxacin",d:"500 mg",f:"1+0+1",u:"3 days",r:"Oral",w:"If bacterial dysentery"},{n:"Domperidone",d:"10 mg",f:"1+1+1",u:"3 days",r:"Oral",w:"For vomiting"},{n:"Probiotic sachet",d:"1 sachet",f:"1+0+1",u:"5 days",r:"Oral",w:"Restores gut flora"}],
+adv:"Continue normal feeding — do not starve. Boiled and cooled water only. Avoid milk temporarily if it worsens. Return if unable to drink, passing very little urine, or blood in stool."},
+
+{dx:"Peptic ulcer disease / gastritis",sys:"Gastrointestinal",
+kw:["epigastric pain","abdominal pain","heartburn","water brash","belching","indigestion","nausea","vomiting","epigastric tenderness","loss of appetite","melaena","black tarry stool","haematemesis","nsaid"],
+inv:["Upper GI endoscopy (OGD)","Rapid urease test (for H. pylori)","Complete Blood Count (CBC) with ESR","Stool for occult blood","Ultrasonography of whole abdomen"],
+rx:[{n:"Omeprazole",d:"20 mg",f:"1+0+1",u:"4–8 weeks",r:"Oral",w:"30 min before meal"},{n:"Amoxicillin",d:"1 g",f:"1+0+1",u:"14 days",r:"Oral",w:"H. pylori eradication"},{n:"Clarithromycin",d:"500 mg",f:"1+0+1",u:"14 days",r:"Oral",w:"H. pylori eradication"},{n:"Antacid suspension",d:"10 ml",f:"1+1+1",u:"As needed",r:"Oral",w:"Symptomatic relief"},{n:"Sucralfate",d:"1 g",f:"1+1+1+1",u:"4 weeks",r:"Oral",w:"Mucosal protection"}],
+adv:"Avoid NSAIDs, smoking, alcohol, betel nut and spicy or oily food. Small frequent meals, do not lie down within 2 hours of eating. Report black stool or vomiting of blood at once."},
+
+{dx:"Acute appendicitis",sys:"Surgical",
+kw:["right lower abdominal pain","periumbilical pain","abdominal pain","migratory pain","nausea","vomiting","fever","loss of appetite","right iliac fossa tenderness","rebound tenderness","guarding","rigidity","rovsing","psoas sign","tachycardia","constipation"],
+inv:["Complete Blood Count (CBC) with ESR","Ultrasonography of whole abdomen","CT scan of abdomen with contrast","Urine R/E (routine & microscopic)","Beta hCG (serum / urine)","Serum creatinine","C-Reactive Protein (CRP)"],
+rx:[{n:"Ceftriaxone",d:"1 g",f:"1+0+1",u:"Perioperative",r:"IV",w:"Pre-operative cover"},{n:"Metronidazole",d:"500 mg",f:"1+1+1",u:"Perioperative",r:"IV",w:"Anaerobic cover"},{n:"Normal saline 0.9%",d:"1000 ml",f:"As per chart",u:"Until surgery",r:"IV",w:"Keep nil per oral"},{n:"Ketorolac",d:"30 mg",f:"Every 8 hours",u:"2 days",r:"IV",w:"Analgesia"}],
+adv:"Surgical emergency — keep nil per oral and arrange urgent surgical consultation for appendicectomy. Do not give strong analgesia before the surgeon reviews."},
+
+{dx:"Acute cholecystitis / cholelithiasis",sys:"Surgical",
+kw:["right upper abdominal pain","colicky abdominal pain","abdominal pain","fever","nausea","vomiting","right hypochondriac tenderness","murphy","jaundice","fatty food","shoulder pain","tender hepatomegaly"],
+inv:["USG of hepatobiliary system","Complete Blood Count (CBC) with ESR","Liver Function Test (LFT)","Serum bilirubin (total & direct)","Serum amylase","Serum lipase","MRCP"],
+rx:[{n:"Ceftriaxone",d:"1 g",f:"1+0+1",u:"7 days",r:"IV",w:"Broad-spectrum cover"},{n:"Metronidazole",d:"500 mg",f:"1+1+1",u:"7 days",r:"IV",w:"Anaerobic cover"},{n:"Hyoscine butylbromide",d:"20 mg",f:"1+1+1",u:"3 days",r:"IV / Oral",w:"For biliary colic"},{n:"Pethidine",d:"50 mg",f:"Every 6 hours",u:"As needed",r:"IM",w:"Preferred over morphine in biliary colic"},{n:"Pantoprazole",d:"40 mg",f:"1+0+0",u:"7 days",r:"IV",w:"Gastric protection"}],
+adv:"Low fat diet. Refer to surgery for elective laparoscopic cholecystectomy after the acute episode settles. Return urgently if fever with rigor and jaundice develop (cholangitis)."},
+
+{dx:"Obstructive jaundice (choledocholithiasis / periampullary lesion)",sys:"Surgical",
+kw:["jaundice","yellow colouration of eyes","dark coloured urine","pale coloured stool","generalised itching","right upper abdominal pain","weight loss","loss of appetite","palpable gallbladder","courvoisier","deep jaundice","scratch marks","hepatomegaly","fever"],
+inv:["USG of hepatobiliary system","Liver Function Test (LFT)","Serum bilirubin (total & direct)","Serum alkaline phosphatase","Gamma GT (GGT)","Prothrombin Time (PT) with INR","MRCP","CT scan of abdomen with contrast","Complete Blood Count (CBC) with ESR","Urine for bile salt & bile pigment","Serum creatinine"],
+rx:[{n:"Vitamin K",d:"10 mg",f:"1+0+0",u:"3 days",r:"IM",w:"Corrects prolonged PT"},{n:"Ursodeoxycholic acid",d:"300 mg",f:"1+0+1",u:"As advised",r:"Oral",w:"For pruritus and bile flow"},{n:"Cetirizine",d:"10 mg",f:"0+0+1",u:"As needed",r:"Oral",w:"For itching"},{n:"Ceftriaxone",d:"1 g",f:"1+0+1",u:"7 days",r:"IV",w:"If cholangitis suspected"},{n:"Normal saline 0.9%",d:"1000 ml",f:"As per chart",u:"As needed",r:"IV",w:"Maintain hydration and renal perfusion"}],
+adv:"Needs urgent evaluation — ERCP or surgical referral depending on the cause. Watch for cholangitis (Charcot's triad) and hepatorenal syndrome. Correct coagulopathy before any procedure."},
+
+{dx:"Acute pancreatitis",sys:"Gastrointestinal",
+kw:["epigastric pain","abdominal pain","radiating to back","severe pain","vomiting","nausea","abdominal distension","abdominal tenderness","bowel sound absent","tachycardia","fever","alcohol","gallstone","jaundice"],
+inv:["Serum amylase","Serum lipase","Ultrasonography of whole abdomen","CT scan of abdomen with contrast","Complete Blood Count (CBC) with ESR","Serum calcium & phosphate","Lipid profile (fasting)","Liver Function Test (LFT)","Arterial Blood Gas (ABG)","Serum electrolytes (Na, K, Cl, HCO₃)"],
+rx:[{n:"Ringer's lactate / Hartmann's",d:"1000 ml",f:"Aggressive per chart",u:"48–72 hours",r:"IV",w:"Cornerstone — early aggressive fluid"},{n:"Pethidine",d:"50 mg",f:"Every 6 hours",u:"As needed",r:"IM",w:"Analgesia"},{n:"Ondansetron",d:"8 mg",f:"1+1+1",u:"3 days",r:"IV",w:"For vomiting"},{n:"Pantoprazole",d:"40 mg",f:"1+0+0",u:"7 days",r:"IV",w:"Gastric protection"}],
+adv:"Keep nil per oral initially, then early enteral feeding as tolerated. Strict alcohol abstinence. Monitor for pseudocyst, necrosis and organ failure."},
+
+{dx:"Viral hepatitis",sys:"Gastrointestinal",
+kw:["jaundice","yellow colouration of eyes","dark coloured urine","loss of appetite","nausea","vomiting","fever","malaise","fatigue","right upper abdominal pain","tender hepatomegaly","itching","weakness"],
+inv:["Liver Function Test (LFT)","SGPT (ALT) & SGOT (AST)","Serum bilirubin (total & direct)","HBsAg","Anti-HCV","Anti-HAV IgM","Anti-HEV IgM","Prothrombin Time (PT) with INR","Ultrasonography of whole abdomen","Complete Blood Count (CBC) with ESR"],
+rx:[{n:"Ursodeoxycholic acid",d:"300 mg",f:"1+0+1",u:"As advised",r:"Oral",w:"Symptomatic"},{n:"Domperidone",d:"10 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"For nausea"},{n:"Vitamin B complex",d:"1 tablet",f:"1+0+0",u:"1 month",r:"Oral",w:"Supportive"},{n:"Tenofovir",d:"300 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Only if chronic hepatitis B with indication"}],
+adv:"Complete rest, normal balanced diet — no need for fat restriction. Strictly avoid alcohol and paracetamol overuse. Vaccinate close contacts for hepatitis B. Repeat LFT after 4 weeks."},
+
+{dx:"Urinary tract infection (cystitis)",sys:"Renal",
+kw:["burning micturition","increased frequency of urination","urgency of micturition","suprapubic tenderness","fever","blood in urine","loin pain","abdominal pain","passing urine at night","turbid urine"],
+inv:["Urine R/E (routine & microscopic)","Urine culture & sensitivity","Complete Blood Count (CBC) with ESR","Serum creatinine","USG KUB with prostate","Fasting Blood Sugar (FBS)"],
+rx:[{n:"Nitrofurantoin",d:"100 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"First-line for uncomplicated cystitis"},{n:"Cefixime",d:"200 mg",f:"1+0+1",u:"7 days",r:"Oral",w:"Alternative"},{n:"Ciprofloxacin",d:"500 mg",f:"1+0+1",u:"5 days",r:"Oral",w:"Guided by culture"},{n:"Phenazopyridine",d:"200 mg",f:"1+1+1",u:"2 days",r:"Oral",w:"Relieves dysuria, colours urine orange"},{n:"Potassium citrate",d:"10 ml",f:"1+1+1",u:"5 days",r:"Oral",w:"Alkalinises urine"}],
+adv:"Drink at least 3 litres of water daily. Do not hold urine. Pass urine after intercourse. Perineal hygiene front to back. Return if fever with loin pain develops."},
+
+{dx:"Acute pyelonephritis",sys:"Renal",
+kw:["fever","chills","rigor","loin pain","renal angle tenderness","burning micturition","vomiting","nausea","increased frequency of urination","tachycardia","toxic look"],
+inv:["Urine R/E (routine & microscopic)","Urine culture & sensitivity","Blood culture & sensitivity","Complete Blood Count (CBC) with ESR","Serum creatinine","USG KUB with prostate","C-Reactive Protein (CRP)"],
+rx:[{n:"Ceftriaxone",d:"1 g",f:"1+0+1",u:"10–14 days",r:"IV",w:"First-line inpatient"},{n:"Ciprofloxacin",d:"500 mg",f:"1+0+1",u:"14 days",r:"Oral",w:"Oral step-down"},{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"As needed",r:"Oral",w:"For fever"},{n:"Normal saline 0.9%",d:"1000 ml",f:"As per chart",u:"As needed",r:"IV",w:"Hydration"}],
+adv:"Complete the full antibiotic course. Repeat urine culture after treatment. Rule out obstruction or stone if recurrent."},
+
+{dx:"Renal / ureteric colic (urolithiasis)",sys:"Renal",
+kw:["loin pain","colicky abdominal pain","radiating to groin","blood in urine","vomiting","nausea","renal angle tenderness","restlessness","burning micturition","decreased urine output"],
+inv:["X-ray KUB","USG KUB with prostate","CT urogram","Urine R/E (routine & microscopic)","Serum creatinine","Serum calcium & phosphate","Serum uric acid","Complete Blood Count (CBC) with ESR"],
+rx:[{n:"Diclofenac sodium",d:"75 mg",f:"Stat then 1+0+1",u:"3 days",r:"IM / Oral",w:"Most effective for renal colic"},{n:"Hyoscine butylbromide",d:"20 mg",f:"1+1+1",u:"3 days",r:"IV / Oral",w:"Antispasmodic"},{n:"Tamsulosin",d:"0.4 mg",f:"0+0+1",u:"4 weeks",r:"Oral",w:"Medical expulsive therapy"},{n:"Potassium citrate",d:"10 ml",f:"1+1+1",u:"As advised",r:"Oral",w:"For uric acid stones"},{n:"Ondansetron",d:"4 mg",f:"1+1+1",u:"3 days",r:"Oral",w:"For vomiting"}],
+adv:"Drink 3 litres of water daily and strain the urine to catch the stone. Refer to urology if the stone is over 6 mm, obstructing, or if there is fever with obstruction."},
+
+{dx:"Nephrotic syndrome",sys:"Renal",
+kw:["facial puffiness","periorbital puffiness","swelling of body","swelling of legs","oedema","pitting pedal oedema","generalised anasarca","frothy urine","decreased urine output","weight gain","ascites","abdominal distension"],
+inv:["24-hour urinary total protein","Urine R/E (routine & microscopic)","Serum total protein & albumin","Lipid profile (fasting)","Serum creatinine","Complete Blood Count (CBC) with ESR","Ultrasonography of whole abdomen","HBsAg","Anti-HCV","Renal biopsy"],
+rx:[{n:"Prednisolone",d:"1 mg/kg",f:"1+0+0",u:"4–6 weeks then taper",r:"Oral",w:"Mainstay in minimal change disease"},{n:"Furosemide",d:"40 mg",f:"1+0+0",u:"As needed",r:"Oral",w:"For oedema"},{n:"Ramipril",d:"5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Reduces proteinuria"},{n:"Atorvastatin",d:"20 mg",f:"0+0+1",u:"Long term",r:"Oral",w:"For hyperlipidaemia"},{n:"Calcium + Vitamin D",d:"500 mg",f:"1+0+1",u:"With steroid",r:"Oral",w:"Bone protection"}],
+adv:"Salt restriction, adequate protein intake, daily weight chart. Watch for infection and thrombosis. Nephrology follow-up is essential."},
+
+{dx:"Chronic kidney disease",sys:"Renal",
+kw:["decreased urine output","swelling of legs","facial puffiness","oedema","weakness","fatigue","nausea","vomiting","loss of appetite","pallor","anaemia","itching","generalised itching","raised blood pressure","muscle cramps","passing urine at night"],
+inv:["Serum creatinine","eGFR","Blood Urea / BUN","Serum electrolytes (Na, K, Cl, HCO₃)","Complete Blood Count (CBC) with ESR","USG KUB with prostate","Urine R/E (routine & microscopic)","Urine albumin creatinine ratio (ACR)","Serum calcium & phosphate","Fasting Blood Sugar (FBS)","Arterial Blood Gas (ABG)"],
+rx:[{n:"Losartan",d:"50 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Renoprotective — monitor K+"},{n:"Furosemide",d:"40 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"For fluid overload"},{n:"Calcium carbonate",d:"500 mg",f:"1+1+1",u:"Long term",r:"Oral",w:"Phosphate binder, with meals"},{n:"Ferrous sulphate",d:"200 mg",f:"1+0+1",u:"Long term",r:"Oral",w:"For anaemia"},{n:"Sodium bicarbonate",d:"500 mg",f:"1+1+1",u:"Long term",r:"Oral",w:"For metabolic acidosis"}],
+adv:"Strict salt and protein moderation, avoid all NSAIDs and nephrotoxic drugs. Tight blood pressure and sugar control. Regular nephrology follow-up and dialysis planning if advanced."},
+
+{dx:"Essential hypertension",sys:"Cardiovascular",
+kw:["raised blood pressure","headache","dizziness","palpitation","blurring of vision","chest pain","shortness of breath","obesity","family history","nose bleeding","epistaxis"],
+inv:["ECG (12 lead)","Fasting Blood Sugar (FBS)","Lipid profile (fasting)","Serum creatinine","Serum electrolytes (Na, K, Cl, HCO₃)","Urine R/E (routine & microscopic)","Echocardiography (colour Doppler)","Ultrasonography of whole abdomen","Thyroid Function Test (TSH, FT3, FT4)","Ophthalmoscopy / fundoscopy"],
+rx:[{n:"Amlodipine",d:"5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"First-line"},{n:"Losartan",d:"50 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Especially with diabetes or CKD"},{n:"Hydrochlorothiazide",d:"12.5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Add-on"},{n:"Atenolol",d:"50 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"If ischaemic heart disease coexists"},{n:"Atorvastatin",d:"20 mg",f:"0+0+1",u:"Long term",r:"Oral",w:"For cardiovascular risk"}],
+adv:"Salt below 5 g/day, DASH diet, 30 minutes brisk walking daily, weight reduction, stop smoking. Home BP monitoring and lifelong medication — never stop on your own."},
+
+{dx:"Acute coronary syndrome / myocardial infarction",sys:"Cardiovascular",
+kw:["central crushing chest pain","chest pain","radiating to left arm","sweating","shortness of breath","palpitation","nausea","vomiting","tachycardia","low blood pressure","raised jvp","s3 gallop","diabetes","smoking","chest tightness","fainting"],
+inv:["ECG (12 lead)","Troponin I / T","CK-MB","Echocardiography (colour Doppler)","Complete Blood Count (CBC) with ESR","Lipid profile (fasting)","Serum creatinine","Fasting Blood Sugar (FBS)","Chest X-ray P/A view","Serum electrolytes (Na, K, Cl, HCO₃)","Coronary angiogram"],
+rx:[{n:"Aspirin",d:"300 mg loading then 75 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Chew the loading dose"},{n:"Clopidogrel",d:"300 mg loading then 75 mg",f:"1+0+0",u:"12 months",r:"Oral",w:"Dual antiplatelet"},{n:"Atorvastatin",d:"40 mg",f:"0+0+1",u:"Long term",r:"Oral",w:"High intensity statin"},{n:"Glyceryl trinitrate (GTN)",d:"0.5 mg",f:"PRN",u:"As needed",r:"Sublingual",w:"For chest pain"},{n:"Bisoprolol",d:"2.5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Start when stable"},{n:"Enoxaparin",d:"1 mg/kg",f:"1+0+1",u:"As advised",r:"SC",w:"Anticoagulation"}],
+adv:"Medical emergency — needs immediate CCU admission and cardiology referral for reperfusion. Complete smoking cessation, cardiac rehabilitation and lifelong secondary prevention."},
+
+{dx:"Congestive cardiac failure",sys:"Cardiovascular",
+kw:["shortness of breath","breathlessness on exertion","orthopnoea","paroxysmal nocturnal dyspnoea","swelling of legs","pitting pedal oedema","raised jvp","fine basal crepitations","tender hepatomegaly","fatigue","palpitation","displaced apex beat","s3 gallop","ascites","weight gain","tachycardia"],
+inv:["Echocardiography (colour Doppler)","ECG (12 lead)","Chest X-ray P/A view","NT-proBNP","Complete Blood Count (CBC) with ESR","Serum creatinine","Serum electrolytes (Na, K, Cl, HCO₃)","Thyroid Function Test (TSH, FT3, FT4)","Liver Function Test (LFT)"],
+rx:[{n:"Furosemide",d:"40 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Symptom relief"},{n:"Ramipril",d:"2.5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Improves survival"},{n:"Bisoprolol",d:"2.5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Start low, go slow"},{n:"Spironolactone",d:"25 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Monitor potassium"},{n:"Digoxin",d:"0.25 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"If atrial fibrillation"}],
+adv:"Daily weight chart — report gain of more than 2 kg in 3 days. Salt below 3 g and fluid under 1.5 litre daily. Prop up while sleeping. Never stop the tablets suddenly."},
+
+{dx:"Iron deficiency anaemia",sys:"Haematology",
+kw:["weakness","fatigue","pallor","anaemia","severe pallor","shortness of breath","breathlessness on exertion","palpitation","dizziness","koilonychia","headache","loss of appetite","excessive menstrual bleeding","melaena","worm infestation","pica"],
+inv:["Complete Blood Count (CBC) with ESR","Peripheral Blood Film (PBF)","Serum ferritin","Serum iron & TIBC","Stool for occult blood","Stool R/E (routine & microscopic)","Upper GI endoscopy (OGD)","Colonoscopy","Urine R/E (routine & microscopic)"],
+rx:[{n:"Ferrous sulphate",d:"200 mg",f:"1+0+1",u:"3–6 months",r:"Oral",w:"Empty stomach with vitamin C"},{n:"Folic acid",d:"5 mg",f:"1+0+0",u:"3 months",r:"Oral",w:"Supportive"},{n:"Albendazole",d:"400 mg",f:"Stat",u:"Single dose",r:"Oral",w:"Deworming"},{n:"Vitamin B complex",d:"1 tablet",f:"1+0+0",u:"1 month",r:"Oral",w:"Supportive"}],
+adv:"Always find the cause of iron deficiency — never treat blindly in an adult. Iron-rich diet, take tablets with lemon or vitamin C, never with tea, milk or antacid. Stools turning black is normal. Continue iron for 3 months after Hb normalises."},
+
+{dx:"Type 2 diabetes mellitus",sys:"Endocrine",
+kw:["excessive thirst","increased urine output","excessive hunger","weight loss","fatigue","weakness","blurring of vision","numbness","tingling sensation","recurrent infection","obesity","family history","passing urine at night","itching","poor wound healing"],
+inv:["Fasting Blood Sugar (FBS)","2 hours after breakfast blood sugar (2HABF)","HbA1c","Urine R/E (routine & microscopic)","Serum creatinine","Lipid profile (fasting)","Urine albumin creatinine ratio (ACR)","ECG (12 lead)","Ophthalmoscopy / fundoscopy","Complete Blood Count (CBC) with ESR"],
+rx:[{n:"Metformin",d:"500 mg",f:"1+0+1",u:"Long term",r:"Oral",w:"First-line, after meal"},{n:"Glimepiride",d:"1 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Before breakfast, hypoglycaemia risk"},{n:"Sitagliptin",d:"100 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Weight neutral add-on"},{n:"Empagliflozin",d:"10 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Cardiorenal benefit"},{n:"Atorvastatin",d:"20 mg",f:"0+0+1",u:"Long term",r:"Oral",w:"Cardiovascular protection"}],
+adv:"Diabetic diet with portion control, 30 minutes walking daily, weight reduction. Daily foot inspection and proper footwear. Annual eye, kidney and foot screening. Learn to recognise hypoglycaemia."},
+
+{dx:"Diabetic ketoacidosis",sys:"Endocrine",
+kw:["vomiting","abdominal pain","excessive thirst","increased urine output","dehydration","altered consciousness","tachypnoea","kussmaul","weakness","drowsy","fruity breath","tachycardia","low blood pressure","weight loss"],
+inv:["Random Blood Sugar (RBS)","Arterial Blood Gas (ABG)","Serum electrolytes (Na, K, Cl, HCO₃)","Urine for ketone bodies","Serum creatinine","Complete Blood Count (CBC) with ESR","ECG (12 lead)","Urine culture & sensitivity","Chest X-ray P/A view"],
+rx:[{n:"Normal saline 0.9%",d:"1000 ml",f:"Rapid then per chart",u:"Until corrected",r:"IV",w:"Fluid first, before insulin"},{n:"Insulin (soluble / regular)",d:"0.1 unit/kg/hour",f:"Continuous infusion",u:"Until ketosis clears",r:"IV",w:"Hourly glucose monitoring"},{n:"Potassium chloride",d:"20–40 mmol/L",f:"With fluid",u:"As per level",r:"IV",w:"Only after urine output confirmed"},{n:"5% Dextrose in normal saline",d:"500 ml",f:"When glucose under 14",u:"As needed",r:"IV",w:"Prevents hypoglycaemia"}],
+adv:"Medical emergency — admit and monitor hourly glucose, electrolytes and pH. Always search for the precipitating cause: infection, missed insulin or myocardial infarction."},
+
+{dx:"Hypothyroidism",sys:"Endocrine",
+kw:["fatigue","weakness","weight gain","cold intolerance","constipation","hair loss","dry skin","low mood","memory loss","facial puffiness","menstrual irregularity","excessive menstrual bleeding","bradycardia","excessive sleepiness","goitre","muscle cramps"],
+inv:["Thyroid Function Test (TSH, FT3, FT4)","Anti-TPO antibody","Complete Blood Count (CBC) with ESR","Lipid profile (fasting)","USG of thyroid gland","ECG (12 lead)","Serum electrolytes (Na, K, Cl, HCO₃)"],
+rx:[{n:"Levothyroxine",d:"50 mcg",f:"1+0+0",u:"Long term",r:"Oral",w:"Empty stomach, 30–60 min before food"},{n:"Calcium + Vitamin D",d:"500 mg",f:"1+0+1",u:"Long term",r:"Oral",w:"Take 4 hours apart from levothyroxine"}],
+adv:"Take the tablet on an empty stomach every morning, separate from calcium, iron and antacid by at least 4 hours. Recheck TSH after 6 weeks and adjust the dose. Treatment is usually lifelong."},
+
+{dx:"Hyperthyroidism / thyrotoxicosis",sys:"Endocrine",
+kw:["weight loss","heat intolerance","palpitation","tremor","anxiety","irritability","insomnia","excessive sweating","diarrhoea","goitre","thyroid enlargement","exophthalmos","lid lag","tachycardia","menstrual irregularity","fatigue"],
+inv:["Thyroid Function Test (TSH, FT3, FT4)","USG of thyroid gland","ECG (12 lead)","Complete Blood Count (CBC) with ESR","Liver Function Test (LFT)","Thyroid scan (radioiodine uptake)","Anti-TPO antibody"],
+rx:[{n:"Carbimazole",d:"10 mg",f:"1+1+1",u:"12–18 months",r:"Oral",w:"Titrate to response"},{n:"Propranolol",d:"40 mg",f:"1+0+1",u:"Until euthyroid",r:"Oral",w:"Controls palpitation and tremor"},{n:"Prednisolone",d:"20 mg",f:"1+0+0",u:"As advised",r:"Oral",w:"Only for eye disease"}],
+adv:"Report any sore throat, mouth ulcer or fever immediately — carbimazole can cause agranulocytosis. Repeat thyroid function every 6 weeks. Avoid iodine-rich foods and stimulants."},
+
+{dx:"Migraine",sys:"Neurology",
+kw:["headache","unilateral headache","throbbing headache","nausea","vomiting","photophobia","aura","blurring of vision","dizziness","irritability","stress","menstrual"],
+inv:["Complete Blood Count (CBC) with ESR","CT scan of brain (plain)","MRI of brain","Ophthalmoscopy / fundoscopy","X-ray paranasal sinuses (PNS)"],
+rx:[{n:"Sumatriptan",d:"50 mg",f:"PRN",u:"As needed",r:"Oral",w:"Take at the very onset"},{n:"Naproxen",d:"500 mg",f:"1+0+1",u:"During attack",r:"Oral",w:"After meal"},{n:"Domperidone",d:"10 mg",f:"1+1+1",u:"During attack",r:"Oral",w:"For nausea"},{n:"Flunarizine",d:"10 mg",f:"0+0+1",u:"3 months",r:"Oral",w:"Prophylaxis if frequent"},{n:"Propranolol",d:"40 mg",f:"1+0+1",u:"3–6 months",r:"Oral",w:"Prophylaxis alternative"}],
+adv:"Keep a headache diary to identify triggers. Regular sleep and meals, avoid skipping food, reduce screen time and stress. Limit painkillers to under 10 days a month to prevent rebound headache."},
+
+{dx:"Acute bacterial meningitis",sys:"Neurology",
+kw:["fever","headache","severe headache","neck rigidity","vomiting","photophobia","altered consciousness","convulsion","kernig","brudzinski","glasgow coma scale reduced","drowsy","petechiae","irritability","disorientation"],
+inv:["CSF study (routine, culture, biochemistry)","CT scan of brain (plain)","Complete Blood Count (CBC) with ESR","Blood culture & sensitivity","Serum electrolytes (Na, K, Cl, HCO₃)","Random Blood Sugar (RBS)","C-Reactive Protein (CRP)","Chest X-ray P/A view"],
+rx:[{n:"Ceftriaxone",d:"2 g",f:"1+0+1",u:"10–14 days",r:"IV",w:"Start immediately — do not wait for LP"},{n:"Vancomycin",d:"1 g",f:"1+0+1",u:"10–14 days",r:"IV",w:"If resistant pneumococcus suspected"},{n:"Dexamethasone",d:"10 mg",f:"Every 6 hours",u:"4 days",r:"IV",w:"Give before or with first antibiotic dose"},{n:"Paracetamol",d:"1 g",f:"1+1+1",u:"As needed",r:"IV / Oral",w:"For fever"}],
+adv:"Medical emergency — antibiotics must not be delayed for imaging or lumbar puncture. Isolate if meningococcal. Give chemoprophylaxis to close contacts."},
+
+{dx:"Cerebrovascular accident (stroke)",sys:"Neurology",
+kw:["weakness of one side of body","hemiparesis","slurring of speech","facial palsy","sudden onset","altered consciousness","loss of consciousness","headache","vomiting","convulsion","plantar extensor","exaggerated deep tendon reflexes","raised blood pressure","double vision","difficulty in walking","numbness"],
+inv:["CT scan of brain (plain)","MRI of brain","ECG (12 lead)","Complete Blood Count (CBC) with ESR","Random Blood Sugar (RBS)","Lipid profile (fasting)","Serum creatinine","Echocardiography (colour Doppler)","Doppler study of limb vessels","Prothrombin Time (PT) with INR"],
+rx:[{n:"Aspirin",d:"150 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Only after haemorrhage excluded on CT"},{n:"Atorvastatin",d:"40 mg",f:"0+0+1",u:"Long term",r:"Oral",w:"Secondary prevention"},{n:"Clopidogrel",d:"75 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Alternative antiplatelet"},{n:"Normal saline 0.9%",d:"1000 ml",f:"As per chart",u:"As needed",r:"IV",w:"Avoid dextrose-containing fluid"}],
+adv:"Time is brain — CT scan must be done before any antiplatelet. Early swallow assessment, DVT prophylaxis, pressure area care and physiotherapy. Control BP, sugar and lipids for secondary prevention."},
+
+{dx:"Osteoarthritis",sys:"Musculoskeletal",
+kw:["joint pain","knee pain","joint swelling","restricted joint movement","morning stiffness","difficulty in walking","crepitus","obesity","joint deformity","heberden","low back pain","joint tenderness"],
+inv:["X-ray of affected joint (AP & lateral)","Complete Blood Count (CBC) with ESR","Serum uric acid","Rheumatoid Factor (RA test)","Serum vitamin D (25-OH)","Serum calcium & phosphate"],
+rx:[{n:"Paracetamol",d:"1 g",f:"1+1+1",u:"As needed",r:"Oral",w:"First-line analgesic"},{n:"Etoricoxib",d:"60 mg",f:"1+0+0",u:"5–7 days",r:"Oral",w:"Short course, after meal"},{n:"Diclofenac gel",d:"1%",f:"1+1+1",u:"2 weeks",r:"Topical",w:"Safer than oral NSAID"},{n:"Calcium + Vitamin D",d:"500 mg",f:"1+0+1",u:"Long term",r:"Oral",w:"Bone health"},{n:"Omeprazole",d:"20 mg",f:"1+0+0",u:"With NSAID",r:"Oral",w:"Gastric protection"}],
+adv:"Weight reduction is the most effective treatment. Quadriceps strengthening exercise daily, avoid squatting, stairs and sitting cross-legged. Use a walking stick on the opposite side. Knee cap for support."},
+
+{dx:"Rheumatoid arthritis",sys:"Musculoskeletal",
+kw:["multiple joint pain","joint pain","morning stiffness","joint swelling","symmetrical","small joints","joint deformity","ulnar deviation","fatigue","weight loss","low grade fever","restricted joint movement","joint tenderness"],
+inv:["Rheumatoid Factor (RA test)","Anti-CCP antibody","Complete Blood Count (CBC) with ESR","C-Reactive Protein (CRP)","X-ray of affected joint (AP & lateral)","Liver Function Test (LFT)","Serum creatinine","Chest X-ray P/A view","ANA (Antinuclear antibody)"],
+rx:[{n:"Methotrexate",d:"7.5–15 mg",f:"Once weekly",u:"Long term",r:"Oral",w:"DMARD of choice — weekly, never daily"},{n:"Folic acid",d:"5 mg",f:"Once weekly",u:"Long term",r:"Oral",w:"On a different day from methotrexate"},{n:"Prednisolone",d:"7.5 mg",f:"1+0+0",u:"Bridging",r:"Oral",w:"Short-term until DMARD works"},{n:"Hydroxychloroquine",d:"200 mg",f:"1+0+1",u:"Long term",r:"Oral",w:"Annual eye check"},{n:"Etoricoxib",d:"90 mg",f:"1+0+0",u:"As needed",r:"Oral",w:"For pain"}],
+adv:"Methotrexate is strictly once weekly — a daily dose can be fatal. Monthly CBC and LFT monitoring. Rheumatology follow-up, physiotherapy and joint protection techniques."},
+
+{dx:"Acute gout",sys:"Musculoskeletal",
+kw:["joint pain","severe joint pain","big toe","joint swelling","redness","joint tenderness","tophi","alcohol","red meat","sudden onset","restricted joint movement","obesity"],
+inv:["Serum uric acid","Complete Blood Count (CBC) with ESR","Joint aspiration for crystals","X-ray of affected joint (AP & lateral)","Serum creatinine","Lipid profile (fasting)","Fasting Blood Sugar (FBS)"],
+rx:[{n:"Indomethacin",d:"25 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"After meal"},{n:"Colchicine",d:"0.5 mg",f:"1+0+1",u:"5 days",r:"Oral",w:"Stop if diarrhoea"},{n:"Prednisolone",d:"30 mg",f:"1+0+0",u:"5 days",r:"Oral",w:"If NSAID contraindicated"},{n:"Allopurinol",d:"100 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Start only after acute attack settles"}],
+adv:"Avoid red meat, organ meat, seafood, alcohol and sugary drinks. Drink plenty of water. Never start or stop allopurinol during an acute attack."},
+
+{dx:"Cellulitis",sys:"Dermatology",
+kw:["skin lesion","redness","swelling","fever","pain","cellulitis","warm skin","lymphadenopathy","ulcer","boil","diabetes","tenderness"],
+inv:["Complete Blood Count (CBC) with ESR","Wound swab culture & sensitivity","Blood culture & sensitivity","Random Blood Sugar (RBS)","C-Reactive Protein (CRP)","USG of soft tissue / local part","X-ray of affected joint (AP & lateral)"],
+rx:[{n:"Flucloxacillin",d:"500 mg",f:"1+1+1+1",u:"7 days",r:"Oral",w:"First-line for staphylococcal cover"},{n:"Amoxicillin + Clavulanic acid",d:"625 mg",f:"1+0+1",u:"7 days",r:"Oral",w:"Broader cover"},{n:"Clindamycin",d:"300 mg",f:"1+1+1",u:"7 days",r:"Oral",w:"If penicillin allergic"},{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"As needed",r:"Oral",w:"For pain and fever"}],
+adv:"Elevate the affected limb and mark the border of redness to track progress. Control blood sugar. Return if the redness spreads, blisters appear or fever worsens — may need IV antibiotics."},
+
+{dx:"Scabies",sys:"Dermatology",
+kw:["itching of skin","generalised itching","nocturnal itching","skin rash","burrow","scratch marks","skin lesion","web space","family members affected","vesicles","pustules"],
+inv:["Skin scraping for mite","Complete Blood Count (CBC) with ESR"],
+rx:[{n:"Permethrin cream",d:"5%",f:"Overnight application",u:"Repeat after 7 days",r:"Topical",w:"Neck down, wash off after 8–12 h"},{n:"Ivermectin",d:"200 mcg/kg",f:"Stat",u:"Repeat after 7 days",r:"Oral",w:"For extensive or crusted scabies"},{n:"Cetirizine",d:"10 mg",f:"0+0+1",u:"2 weeks",r:"Oral",w:"For itching"},{n:"Calamine lotion",d:"—",f:"1+1+1",u:"As needed",r:"Topical",w:"Soothing"}],
+adv:"Treat every household member on the same day, even if they have no itching. Wash all clothes and bedding in hot water and sun-dry. Itching may persist for 2–4 weeks after successful treatment — that is normal."},
+
+{dx:"Allergic rhinitis",sys:"ENT",
+kw:["sneezing","runny nose","nasal blockage","itching","watering of eye","redness of eye","cough","dust","seasonal","headache","hoarseness"],
+inv:["Complete Blood Count (CBC) with ESR","Serum IgE (total)","X-ray paranasal sinuses (PNS)","Absolute eosinophil count"],
+rx:[{n:"Fexofenadine",d:"180 mg",f:"1+0+0",u:"2 weeks",r:"Oral",w:"Non-sedating"},{n:"Fluticasone nasal spray",d:"50 mcg",f:"2 sprays 1+0+0",u:"Long term",r:"Nasal spray",w:"Most effective — needs regular use"},{n:"Montelukast",d:"10 mg",f:"0+0+1",u:"1 month",r:"Oral",w:"Especially if asthma coexists"},{n:"Normal saline nasal spray",d:"0.9%",f:"As needed",u:"Ongoing",r:"Nasal spray",w:"Safe, clears allergens"}],
+adv:"Identify and avoid triggers — dust, pollen, pet dander, strong smells. Use a mask while cleaning. Wash bedding weekly in hot water. Nasal steroid takes 1–2 weeks to show full effect."},
+
+{dx:"Acute otitis media",sys:"ENT",
+kw:["ear pain","ear discharge","fever","hearing loss","irritability","runny nose","sore throat","excessive crying","tinnitus"],
+inv:["Otoscopic examination","Audiometry","Complete Blood Count (CBC) with ESR","Wound swab culture & sensitivity"],
+rx:[{n:"Amoxicillin",d:"500 mg",f:"1+1+1",u:"7 days",r:"Oral",w:"First-line"},{n:"Amoxicillin + Clavulanic acid",d:"625 mg",f:"1+0+1",u:"7 days",r:"Oral",w:"If no response in 48–72 h"},{n:"Paracetamol",d:"500 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"For pain and fever"},{n:"Ciprofloxacin ear drop",d:"0.3%",f:"3 drops 1+0+1",u:"7 days",r:"Ear drop",w:"Only if the drum is perforated"},{n:"Xylometazoline nasal drop",d:"0.05%",f:"2 drops 1+0+1",u:"5 days",r:"Nasal drop",w:"Relieves eustachian blockage"}],
+adv:"Keep the ear dry — no water entry while bathing, no cotton buds. Complete the antibiotic course. Follow up to confirm the drum has healed and hearing is normal."},
+
+{dx:"Anaemia of chronic disease / megaloblastic anaemia",sys:"Haematology",
+kw:["weakness","fatigue","pallor","anaemia","numbness","tingling sensation","memory loss","difficulty in walking","weight loss","loss of appetite","glossitis","diminished deep tendon reflexes","vegetarian"],
+inv:["Complete Blood Count (CBC) with ESR","Peripheral Blood Film (PBF)","Serum vitamin B12 & folate","Serum ferritin","Reticulocyte count","Bone marrow aspiration & biopsy","Thyroid Function Test (TSH, FT3, FT4)","Liver Function Test (LFT)","Serum creatinine"],
+rx:[{n:"Vitamin B12 (Cyanocobalamin)",d:"1000 mcg",f:"Alternate day then monthly",u:"Long term",r:"IM",w:"Loading then maintenance"},{n:"Folic acid",d:"5 mg",f:"1+0+0",u:"3 months",r:"Oral",w:"Give B12 first to avoid neurological worsening"},{n:"Ferrous sulphate",d:"200 mg",f:"1+0+1",u:"3 months",r:"Oral",w:"If iron is also deficient"}],
+adv:"Never give folate alone if B12 deficiency is possible — it can worsen the neurological damage. Investigate the underlying cause. Diet rich in animal protein, eggs and dairy."},
+
+{dx:"Benign prostatic hyperplasia",sys:"Urology",
+kw:["poor urinary stream","increased frequency of urination","passing urine at night","urgency of micturition","retention of urine","hesitancy","dribbling","enlarged prostate on pr","decreased urine output","burning micturition","palpable bladder"],
+inv:["USG KUB with prostate","Serum PSA","Urine R/E (routine & microscopic)","Urine culture & sensitivity","Serum creatinine","Uroflowmetry","Complete Blood Count (CBC) with ESR"],
+rx:[{n:"Tamsulosin",d:"0.4 mg",f:"0+0+1",u:"Long term",r:"Oral",w:"After dinner, may cause dizziness"},{n:"Finasteride",d:"5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"Takes 3–6 months to work"},{n:"Solifenacin",d:"5 mg",f:"1+0+0",u:"Long term",r:"Oral",w:"If storage symptoms dominate"}],
+adv:"Avoid caffeine and alcohol, especially at night. Do not hold urine for long. Reduce evening fluid intake. Urology referral if there is retention, recurrent infection or renal impairment."},
+
+{dx:"Generalised anxiety / depression",sys:"Psychiatry",
+kw:["anxiety","low mood","insomnia","palpitation","fatigue","weakness","loss of appetite","weight loss","headache","irritability","difficulty concentrating","excessive sleepiness","memory loss","body ache"],
+inv:["Thyroid Function Test (TSH, FT3, FT4)","Complete Blood Count (CBC) with ESR","Fasting Blood Sugar (FBS)","Serum vitamin B12 & folate","Serum vitamin D (25-OH)","ECG (12 lead)"],
+rx:[{n:"Sertraline",d:"25 mg",f:"1+0+0",u:"6–12 months",r:"Oral",w:"Start low, effect takes 2–4 weeks"},{n:"Escitalopram",d:"10 mg",f:"1+0+0",u:"6–12 months",r:"Oral",w:"Alternative SSRI"},{n:"Clonazepam",d:"0.5 mg",f:"0+0+1",u:"Maximum 2 weeks",r:"Oral",w:"Short term only — dependence risk"},{n:"Amitriptyline",d:"10 mg",f:"0+0+1",u:"As advised",r:"Oral",w:"If insomnia or pain coexists"}],
+adv:"Rule out thyroid and anaemia first. Regular sleep schedule, daily exercise, reduce caffeine. Counselling or CBT alongside medication. Do not stop the medicine suddenly — taper under supervision."},
+
+{dx:"Vertigo (BPPV / vestibular)",sys:"Neurology",
+kw:["vertigo","dizziness","nausea","vomiting","nystagmus","hearing loss","tinnitus","ringing in ear","difficulty in walking","head movement","ataxic gait","blurring of vision"],
+inv:["Audiometry","MRI of brain","Complete Blood Count (CBC) with ESR","Serum electrolytes (Na, K, Cl, HCO₃)","Fasting Blood Sugar (FBS)","ECG (12 lead)","X-ray cervical spine"],
+rx:[{n:"Betahistine",d:"16 mg",f:"1+1+1",u:"4 weeks",r:"Oral",w:"After meal"},{n:"Prochlorperazine",d:"5 mg",f:"1+1+1",u:"5 days",r:"Oral",w:"Acute phase only"},{n:"Cinnarizine",d:"25 mg",f:"1+1+1",u:"2 weeks",r:"Oral",w:"Alternative"},{n:"Ondansetron",d:"4 mg",f:"1+1+1",u:"3 days",r:"Oral",w:"For vomiting"}],
+adv:"Get up slowly from lying or sitting. Avoid sudden head movements and driving during attacks. Epley manoeuvre and vestibular rehabilitation exercises help greatly in BPPV."},
+
+{dx:"Dyspepsia / GERD",sys:"Gastrointestinal",
+kw:["heartburn","water brash","belching","indigestion","epigastric pain","chest pain","regurgitation","sore throat","hoarseness","cough","dry cough","nausea","dysphagia","epigastric tenderness"],
+inv:["Upper GI endoscopy (OGD)","Rapid urease test (for H. pylori)","Complete Blood Count (CBC) with ESR","Ultrasonography of whole abdomen","ECG (12 lead)"],
+rx:[{n:"Esomeprazole",d:"20 mg",f:"1+0+0",u:"8 weeks",r:"Oral",w:"30 min before breakfast"},{n:"Domperidone",d:"10 mg",f:"1+1+1",u:"2 weeks",r:"Oral",w:"Prokinetic, before meal"},{n:"Antacid suspension",d:"10 ml",f:"1+1+1",u:"As needed",r:"Oral",w:"After meal and at bedtime"}],
+adv:"Raise the head end of the bed by 6 inches. Avoid late-night meals, lying down within 2–3 hours of eating, spicy and oily food, tea, coffee, smoking and betel nut. Weight reduction helps. Always exclude cardiac pain first."}
+];
+
+/* ============ STORAGE ============ */
+const K={drugs:"rxp_drugs",invs:"rxp_invs",symp:"rxp_symp",sign:"rxp_sign",saved:"rxp_saved",set:"rxp_set",temp:"rxp_temp"};
+const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));scheduleDriveSync();return true}catch(e){toast("Storage full — export a backup");return false}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+let DB={drugs:ld(K.drugs,DRUGS),invs:ld(K.invs,INVS),symp:ld(K.symp,SYMPTOMS),sign:ld(K.sign,SIGNS),saved:ld(K.saved,[]),set:ld(K.set,{}),temp:ld(K.temp,[])};
+
+/* ============ CURRENT PRESCRIPTION ============ */
+let CC=[],SG=[],MD=[],IV=[],EDIT=null,AI=null;
+
+/* ============ UI HELPERS ============ */
+let tT;
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("on"),2200)}
+
+document.querySelectorAll(".nb").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".nb").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".pg").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); $("pg-"+b.dataset.p).classList.add("on");
+  window.scrollTo({top:0,behavior:"smooth"});
+  const p=b.dataset.p;
+  if(p==="saved")renderSaved();if(p==="drugs")renderDL();if(p==="invs")renderIL();
+  if(p==="symp"){renderSL();renderGN()}if(p==="cond")renderKB();if(p==="temp")renderTP();
+});
+
+/* ============ AUTOCOMPLETE ENGINE ============ */
+function ac(inId,dropId,getList,onPick,allowCustom){
+  const inp=$(inId),drop=$(dropId);let idx=-1,cur=[];
+  const close=()=>{drop.classList.remove("on");idx=-1};
+  const draw=q=>{
+    if(!q||q.length<1){close();return}
+    const lq=q.toLowerCase();
+    cur=getList().filter(o=>o.label.toLowerCase().includes(lq))
+      .sort((a,b)=>a.label.toLowerCase().indexOf(lq)-b.label.toLowerCase().indexOf(lq)).slice(0,40);
+    if(!cur.length){close();return}
+    drop.innerHTML=cur.map((o,i)=>`<div class="ac-i" data-i="${i}">${o.cat?`<span class="cat">${esc(o.cat)}</span>`:""}${esc(o.label)}${o.sub?`<div class="s">${esc(o.sub)}</div>`:""}</div>`).join("");
+    drop.classList.add("on");idx=-1;
+    drop.querySelectorAll(".ac-i").forEach(el=>el.onmousedown=e=>{e.preventDefault();onPick(cur[+el.dataset.i]);inp.value="";close()});
+  };
+  inp.oninput=()=>draw(inp.value);
+  inp.onfocus=()=>{if(inp.value)draw(inp.value)};
+  inp.onblur=()=>setTimeout(close,150);
+  inp.onkeydown=e=>{
+    const its=drop.querySelectorAll(".ac-i");
+    if(e.key==="ArrowDown"){e.preventDefault();idx=Math.min(idx+1,its.length-1)}
+    else if(e.key==="ArrowUp"){e.preventDefault();idx=Math.max(idx-1,0)}
+    else if(e.key==="Enter"){
+      e.preventDefault();
+      if(idx>=0&&its[idx]){onPick(cur[idx]);inp.value="";close()}
+      else if(allowCustom&&inp.value.trim()){onPick({label:inp.value.trim(),custom:true});inp.value="";close()}
+      return;
+    } else if(e.key==="Escape"){close();return} else return;
+    its.forEach(x=>x.classList.remove("sel"));
+    if(its[idx]){its[idx].classList.add("sel");its[idx].scrollIntoView({block:"nearest"})}
+  };
+}
+
+/* ============ CC + SIGNS ============ */
+function renderCC(){
+  $("ccBox").innerHTML=CC.map((c,i)=>`<span class="tag t-rose">${esc(c)}<span class="x" data-i="${i}">×</span></span>`).join("");
+  $("ccBox").querySelectorAll(".x").forEach(e=>e.onclick=()=>{CC.splice(+e.dataset.i,1);renderCC()});
+  $("ccN").textContent=CC.length?CC.length+" added":"";
+}
+function renderSG(){
+  $("sgBox").innerHTML=SG.map((c,i)=>`<span class="tag t-sky">${esc(c)}<span class="x" data-i="${i}">×</span></span>`).join("");
+  $("sgBox").querySelectorAll(".x").forEach(e=>e.onclick=()=>{SG.splice(+e.dataset.i,1);renderSG()});
+  $("sgN").textContent=SG.length?SG.length+" added":"";
+}
+ac("ccIn","ccAc",()=>DB.symp.map(s=>({label:s})),o=>{
+  if(!CC.includes(o.label)){CC.push(o.label);renderCC()}
+  if(o.custom&&!DB.symp.includes(o.label)){DB.symp.push(o.label);DB.symp.sort();sv(K.symp,DB.symp);toast("Added to symptom library")}
+},true);
+ac("sgIn","sgAc",()=>DB.sign.map(s=>({label:s})),o=>{
+  if(!SG.includes(o.label)){SG.push(o.label);renderSG()}
+  if(o.custom&&!DB.sign.includes(o.label)){DB.sign.push(o.label);DB.sign.sort();sv(K.sign,DB.sign);toast("Added to sign library")}
+},true);
+
+/* ============ MEDICINES ============ */
+ac("d_name","dAc",()=>DB.drugs.map(d=>({label:d.n,cat:d.c.split(" — ")[0],sub:[d.d,d.f,d.u,d.o].filter(Boolean).join("  ·  "),raw:d})),o=>{
+  $("d_name").value=o.label;
+  if(o.raw){
+    if(!$("d_dose").value)$("d_dose").value=(o.raw.d||"").split(",")[0].trim();
+    if(!$("d_dur").value)$("d_dur").value=o.raw.u||"";
+    if(!$("d_note").value)$("d_note").value=o.raw.o||"";
+    const f=o.raw.f||"";const sel=$("d_freq");
+    for(const op of sel.options){if(op.value.startsWith(f)){sel.value=op.value;break}}
+  }
+  $("d_dose").focus();
+},true);
+
+$("dAdd").onclick=()=>{
+  const n=$("d_name").value.trim();
+  if(!n){toast("Type a drug name first");$("d_name").focus();return}
+  MD.push({n,d:$("d_dose").value.trim(),f:$("d_freq").value,u:$("d_dur").value.trim(),r:$("d_route").value,t:$("d_time").value,o:$("d_note").value.trim()});
+  ["d_name","d_dose","d_dur","d_note"].forEach(i=>$(i).value="");
+  ["d_freq","d_route","d_time"].forEach(i=>$(i).value="");
+  renderMD();$("d_name").focus();
+};
+
+function renderMD(){
+  $("mdN").textContent=MD.length?MD.length+" medicine"+(MD.length>1?"s":""):"";
+  if(!MD.length){$("mdList").innerHTML='<div class="empty"><span class="e">💊</span>No medicine added yet</div>';return}
+  $("mdList").innerHTML=MD.map((m,i)=>`<div class="row">
+    <div style="flex:1"><div class="row-t">${i+1}. ${esc(m.n)} ${m.d?`<span style="color:#0d9488">${esc(m.d)}</span>`:""}</div>
+    <div class="row-s">${[m.f,m.u,m.r,m.t,m.o].filter(Boolean).map(esc).join("  ·  ")||"—"}</div></div>
+    <div class="row-acts">
+      <button class="btn bo bxs" data-up="${i}">▲</button>
+      <button class="btn bo bxs" data-dn="${i}">▼</button>
+      <button class="btn br bxs" data-del="${i}">✕</button>
+    </div></div>`).join("");
+  $("mdList").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{MD.splice(+b.dataset.del,1);renderMD()});
+  $("mdList").querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>{const i=+b.dataset.up;if(i>0){[MD[i-1],MD[i]]=[MD[i],MD[i-1]];renderMD()}});
+  $("mdList").querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const i=+b.dataset.dn;if(i<MD.length-1){[MD[i+1],MD[i]]=[MD[i],MD[i+1]];renderMD()}});
+}
+
+/* ============ INVESTIGATIONS ============ */
+ac("i_name","iAc",()=>DB.invs.map(i=>({label:i.n,cat:i.c.split(" — ")[0],raw:i})),o=>{
+  const cat=o.raw?o.raw.c:"Other";
+  if(!IV.some(x=>x.n===o.label)){IV.push({n:o.label,c:cat});renderIV()}
+  if(o.custom&&!DB.invs.some(x=>x.n===o.label)){DB.invs.push({n:o.label,c:"Other"});sv(K.invs,DB.invs);toast("Added to investigation library")}
+},true);
+
+function renderIV(){
+  $("ivN").textContent=IV.length?IV.length+" selected":"";
+  if(!IV.length){$("ivList").innerHTML='<div class="empty"><span class="e">🔬</span>No investigation added yet</div>';return}
+  $("ivList").innerHTML=IV.map((v,i)=>`<div class="row blue">
+    <div style="flex:1"><span class="bdg b-sky" style="margin-right:8px">${esc((v.c||"Other").split(" — ")[0])}</span><span class="row-t">${i+1}. ${esc(v.n)}</span></div>
+    <div class="row-acts"><button class="btn br bxs" data-del="${i}">✕</button></div></div>`).join("");
+  $("ivList").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{IV.splice(+b.dataset.del,1);renderIV()});
+}
+
+/* ============ OFFLINE CLINICAL ENGINE ============ */
+function haystack(){
+  return [CC.join(" "),SG.join(" "),$("ccDesc").value,$("h_hpi").value,$("h_pmh").value,$("h_soc").value,$("sgNotes").value].join(" ").toLowerCase();
+}
+function offlineSuggest(){
+  const hay=haystack();
+  if(!hay.trim())return null;
+  const scored=KB.map(c=>{
+    let hits=[];
+    c.kw.forEach(k=>{if(hay.includes(k.toLowerCase()))hits.push(k)});
+    return {c,score:hits.length,hits};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||b.c.kw.length-a.c.kw.length).slice(0,5);
+  if(!scored.length)return null;
+  const top=scored[0].score;
+  const dif=scored.map(x=>({
+    dx:x.c.dx,
+    lk:x.score>=Math.max(4,top*0.75)?"High":x.score>=Math.max(2,top*0.45)?"Medium":"Low",
+    why:x.hits.slice(0,4).join(", ")
+  }));
+  const rx=[],seenR=new Set(),iv=[],seenI=new Set();
+  scored.slice(0,3).forEach((x,rank)=>{
+    x.c.rx.forEach(d=>{if(!seenR.has(d.n.toLowerCase())){seenR.add(d.n.toLowerCase());rx.push(Object.assign({},d,{from:x.c.dx,rank}))}});
+    x.c.inv.forEach(n=>{if(!seenI.has(n.toLowerCase())){seenI.add(n.toLowerCase());iv.push({n,from:x.c.dx,rank})}});
+  });
+  rx.sort((a,b)=>a.rank-b.rank);iv.sort((a,b)=>a.rank-b.rank);
+  return {dif,rx:rx.slice(0,14),iv:iv.slice(0,16),note:scored[0].c.adv,src:"Built-in knowledge base — matched "+scored[0].score+" findings for "+scored[0].c.dx};
+}
+
+/* ============ ONLINE AI ============ */
+async function onlineSuggest(){
+  const s=DB.set;
+  const prompt=`You are assisting a doctor in Bangladesh writing a prescription. Based on this presentation, give differentials, investigations and a drug plan.
+
+Age: ${$("p_age").value||"not given"} | Sex: ${$("p_sex").value||"not given"} | Weight: ${$("p_wt").value||"not given"}
+Chief complaints: ${CC.join(", ")||"none listed"}
+Complaint details: ${$("ccDesc").value||"none"}
+History of present illness: ${$("h_hpi").value||"none"}
+Past history: ${$("h_pmh").value||"none"}
+Drug history and allergies: ${$("h_drug").value||"none"}
+Vitals: PR ${$("v_pr").value||"-"}, BP ${$("v_bp").value||"-"}, Temp ${$("v_tm").value||"-"}, RR ${$("v_rr").value||"-"}, SpO2 ${$("v_sp").value||"-"}
+Signs: ${SG.join(", ")||"none listed"}
+Examination notes: ${$("sgNotes").value||"none"}
+
+Reply with ONLY valid JSON, no markdown fences, no commentary:
+{"dif":[{"dx":"","lk":"High|Medium|Low","why":"one short line"}],
+"iv":[{"n":"investigation name","why":"short reason"}],
+"rx":[{"n":"drug","d":"dose","f":"1+0+1","u":"duration","r":"route","w":"short reason"}],
+"note":"2-3 line clinical advice"}
+Give 3-5 differentials, 5-10 investigations, 3-8 drugs. Use generic drug names and doses common in Bangladesh.`;
+
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":s.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:s.model||"claude-sonnet-5",max_tokens:2000,messages:[{role:"user",content:prompt}]})
+  });
+  if(!res.ok){const t=await res.text();throw new Error(res.status+" "+t.slice(0,160))}
+  const data=await res.json();
+  const txt=(data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("");
+  const clean=txt.replace(/```json|```/g,"").trim();
+  const j=JSON.parse(clean.slice(clean.indexOf("{"),clean.lastIndexOf("}")+1));
+  j.src="Claude ("+(s.model||"claude-sonnet-5")+")";
+  return j;
+}
+
+$("aiBtn").onclick=async()=>{
+  if(!CC.length&&!SG.length&&!$("ccDesc").value.trim()&&!$("sgNotes").value.trim()){
+    toast("Add complaints or signs first");return;
+  }
+  const b=$("aiBtn");const old=b.innerHTML;
+  b.innerHTML='<span class="spin"></span> Thinking…';b.disabled=true;
+  try{
+    let r=null;
+    if(DB.set.useai&&DB.set.key){
+      try{r=await onlineSuggest()}
+      catch(e){toast("Online AI failed — using built-in knowledge base");r=offlineSuggest()}
+    } else r=offlineSuggest();
+    if(!r){$("aiOut").innerHTML='<div class="ai-panel"><div class="ai-bd"><div class="ai-empty">No match found. Try adding more specific complaints and signs from the search boxes above.</div></div></div>'}
+    else{AI=r;renderAI(r)}
+  }catch(e){
+    $("aiOut").innerHTML='<div class="ai-panel"><div class="ai-bd"><div class="ai-empty">Something went wrong: '+esc(e.message)+'</div></div></div>';
+  }
+  b.innerHTML=old;b.disabled=false;
+};
+$("aiClear").onclick=()=>{$("aiOut").innerHTML="";AI=null};
+
+function renderAI(r){
+  const lkc={High:"lk-h",Medium:"lk-m",Low:"lk-l"};
+  let h='<div class="ai-panel"><div class="ai-hd">✨ Suggestions — tap any item to add it to the prescription</div><div class="ai-bd">';
+  if(r.dif&&r.dif.length){
+    h+='<div class="ai-grp"><div class="ai-gt" style="color:#5b21b6">🎯 Differential diagnoses</div>';
+    r.dif.forEach((d,i)=>h+=`<span class="chip dx" data-dx="${i}"><span class="plus">+</span>${esc(d.dx)}<span class="lk ${lkc[d.lk]||"lk-l"}">${esc(d.lk||"")}</span>${d.why?`<span class="why">${esc(d.why)}</span>`:""}</span>`);
+    h+='</div>';
+  }
+  if(r.iv&&r.iv.length){
+    h+='<div class="ai-grp"><div class="ai-gt" style="color:#075985">🔬 Investigations <span style="font-weight:600;text-transform:none;letter-spacing:0">— <a href="#" id="addAllIv" style="color:#0284c7">add all</a></span></div>';
+    r.iv.forEach((v,i)=>h+=`<span class="chip iv" data-iv="${i}"><span class="plus">+</span>${esc(v.n)}</span>`);
+    h+='</div>';
+  }
+  if(r.rx&&r.rx.length){
+    h+='<div class="ai-grp"><div class="ai-gt" style="color:#115e59">💊 Medicines <span style="font-weight:600;text-transform:none;letter-spacing:0">— <a href="#" id="addAllRx" style="color:#0d9488">add all</a></span></div>';
+    r.rx.forEach((d,i)=>h+=`<span class="chip dr" data-rx="${i}"><span class="plus">+</span>${esc(d.n)} <span class="why">${esc([d.d,d.f,d.u].filter(Boolean).join(" · "))}</span></span>`);
+    h+='</div>';
+  }
+  if(r.note)h+='<div class="ai-note"><b>Clinical note:</b> '+esc(r.note)+'</div>';
+  if(r.src)h+='<div style="font-size:11px;color:#94a3b8;margin-top:9px">Source: '+esc(r.src)+' · Suggestions only — your clinical judgement decides.</div>';
+  h+='</div></div>';
+  $("aiOut").innerHTML=h;
+
+  $("aiOut").querySelectorAll("[data-dx]").forEach(el=>el.onclick=()=>{
+    if(el.classList.contains("done"))return;
+    const d=r.dif[+el.dataset.dx];
+    if(!$("dx_final").value)$("dx_final").value=d.dx;
+    else $("dx_diff").value=($("dx_diff").value?$("dx_diff").value+", ":"")+d.dx;
+    el.classList.add("done");toast("Diagnosis added");
+  });
+  $("aiOut").querySelectorAll("[data-iv]").forEach(el=>el.onclick=()=>{
+    if(el.classList.contains("done"))return;
+    const v=r.iv[+el.dataset.iv];addIv(v.n);el.classList.add("done");toast("Added: "+v.n);
+  });
+  $("aiOut").querySelectorAll("[data-rx]").forEach(el=>el.onclick=()=>{
+    if(el.classList.contains("done"))return;
+    const d=r.rx[+el.dataset.rx];addRx(d);el.classList.add("done");toast("Added: "+d.n);
+  });
+  const aI=$("addAllIv"),aR=$("addAllRx");
+  if(aI)aI.onclick=e=>{e.preventDefault();$("aiOut").querySelectorAll("[data-iv]:not(.done)").forEach(x=>x.click())};
+  if(aR)aR.onclick=e=>{e.preventDefault();$("aiOut").querySelectorAll("[data-rx]:not(.done)").forEach(x=>x.click())};
+}
+function addIv(n){
+  const f=DB.invs.find(x=>x.n.toLowerCase()===n.toLowerCase());
+  if(!IV.some(x=>x.n.toLowerCase()===n.toLowerCase())){IV.push({n:f?f.n:n,c:f?f.c:"Other"});renderIV()}
+}
+function addRx(d){
+  const f=DB.drugs.find(x=>x.n.toLowerCase()===String(d.n).toLowerCase());
+  MD.push({n:d.n,d:d.d||(f?String(f.d).split(",")[0].trim():""),f:d.f||(f?f.f:""),u:d.u||(f?f.u:""),r:d.r||"Oral",t:f?f.o:"",o:d.w||""});
+  renderMD();
+}
+
+/* ============ SAVE / LOAD ============ */
+function collect(){
+  return{id:EDIT||Date.now(),ts:Date.now(),
+  name:$("p_name").value.trim(),age:$("p_age").value,sex:$("p_sex").value,date:$("p_date").value,
+  wt:$("p_wt").value,ht:$("p_ht").value,ph:$("p_ph").value,pid:$("p_id").value,
+  cc:[...CC],ccd:$("ccDesc").value,
+  hpi:$("h_hpi").value,pmh:$("h_pmh").value,dhx:$("h_drug").value,fhx:$("h_fam").value,shx:$("h_soc").value,ohx:$("h_obs").value,
+  vit:{pr:$("v_pr").value,bp:$("v_bp").value,tm:$("v_tm").value,rr:$("v_rr").value,sp:$("v_sp").value},
+  sg:[...SG],sgn:$("sgNotes").value,
+  dx:$("dx_final").value,dd:$("dx_diff").value,
+  md:[...MD],iv:[...IV],
+  adv:$("adv").value,fup:$("fup").value,ref:$("ref").value};
+}
+function load(r){
+  EDIT=r.id;
+  $("p_name").value=r.name||"";$("p_age").value=r.age||"";$("p_sex").value=r.sex||"";$("p_date").value=r.date||"";
+  $("p_wt").value=r.wt||"";$("p_ht").value=r.ht||"";$("p_ph").value=r.ph||"";$("p_id").value=r.pid||"";
+  CC=[...(r.cc||[])];SG=[...(r.sg||[])];MD=[...(r.md||[])];IV=[...(r.iv||[])];
+  $("ccDesc").value=r.ccd||"";
+  $("h_hpi").value=r.hpi||"";$("h_pmh").value=r.pmh||"";$("h_drug").value=r.dhx||"";
+  $("h_fam").value=r.fhx||"";$("h_soc").value=r.shx||"";$("h_obs").value=r.ohx||"";
+  const v=r.vit||{};$("v_pr").value=v.pr||"";$("v_bp").value=v.bp||"";$("v_tm").value=v.tm||"";$("v_rr").value=v.rr||"";$("v_sp").value=v.sp||"";
+  $("sgNotes").value=r.sgn||"";$("dx_final").value=r.dx||"";$("dx_diff").value=r.dd||"";
+  $("adv").value=r.adv||"";$("fup").value=r.fup||"";$("ref").value=r.ref||"";
+  renderCC();renderSG();renderMD();renderIV();$("aiOut").innerHTML="";
+  document.querySelector('.nb[data-p="write"]').click();
+  $("statLine").textContent="Editing saved prescription";
+}
+$("aSave").onclick=()=>{
+  const r=collect();
+  if(!r.name){toast("Patient name is required");$("p_name").focus();return}
+  const i=DB.saved.findIndex(x=>x.id===r.id);
+  if(i>=0)DB.saved[i]=r;else DB.saved.unshift(r);
+  EDIT=r.id;sv(K.saved,DB.saved);
+  toast(i>=0?"Prescription updated":"Prescription saved");
+  $("statLine").textContent="Saved · "+new Date().toLocaleTimeString();
+};
+$("aNew").onclick=()=>{
+  if(!confirm("Clear the form and start a new prescription?"))return;
+  CC=[];SG=[];MD=[];IV=[];EDIT=null;AI=null;
+  ["p_name","p_age","p_wt","p_ht","p_ph","p_id","ccDesc","h_hpi","h_pmh","h_drug","h_fam","h_soc","h_obs",
+   "v_pr","v_bp","v_tm","v_rr","v_sp","sgNotes","dx_final","dx_diff","adv","fup","ref"].forEach(i=>$(i).value="");
+  $("p_sex").value="";$("aiOut").innerHTML="";$("statLine").textContent="";
+  $("p_date").value=new Date().toISOString().slice(0,10);
+  renderCC();renderSG();renderMD();renderIV();
+  window.scrollTo({top:0,behavior:"smooth"});toast("New prescription");
+};
+
+function renderSaved(q){
+  q=(q||"").toLowerCase();
+  const list=q?DB.saved.filter(r=>(r.name+" "+r.dx+" "+(r.md||[]).map(m=>m.n).join(" ")+" "+(r.cc||[]).join(" ")).toLowerCase().includes(q)):DB.saved;
+  $("svN").textContent=DB.saved.length+" total";
+  if(!list.length){$("svList").innerHTML='<div class="empty"><span class="e">🗂️</span>'+(q?"Nothing matched that search":"No prescriptions saved yet")+'</div>';return}
+  $("svList").innerHTML=list.map(r=>`<div class="libitem" style="align-items:flex-start;flex-direction:column;gap:8px">
+    <div style="display:flex;width:100%;justify-content:space-between;gap:10px;align-items:flex-start">
+      <div><div style="font-weight:700;font-size:15px">${esc(r.name)}</div>
+      <div style="font-size:12px;color:#64748b">${esc([r.date,r.age,r.sex].filter(Boolean).join(" · "))}${r.dx?" — <b style='color:#0d9488'>"+esc(r.dx)+"</b>":""}</div></div>
+      <div class="row-acts">
+        <button class="btn bs bxs" data-ed="${r.id}">✎ Open</button>
+        <button class="btn ba bxs" data-pr="${r.id}">🖨️</button>
+        <button class="btn bo bxs" data-cp="${r.id}">⧉</button>
+        <button class="btn br bxs" data-rm="${r.id}">🗑</button>
+      </div>
+    </div>
+    ${(r.cc||[]).length?`<div>${r.cc.slice(0,6).map(c=>`<span class="bdg b-rose" style="margin:2px">${esc(c)}</span>`).join("")}</div>`:""}
+    ${(r.md||[]).length?`<div>${r.md.slice(0,6).map(m=>`<span class="bdg b-teal" style="margin:2px">${esc(m.n)}</span>`).join("")}${r.md.length>6?`<span style="font-size:11px;color:#94a3b8"> +${r.md.length-6}</span>`:""}</div>`:""}
+  </div>`).join("");
+  $("svList").querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>{const r=DB.saved.find(x=>x.id==b.dataset.ed);if(r)load(r)});
+  $("svList").querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{const r=DB.saved.find(x=>x.id==b.dataset.pr);if(r)printRx(r)});
+  $("svList").querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>{
+    const r=DB.saved.find(x=>x.id==b.dataset.cp);if(!r)return;
+    const c=JSON.parse(JSON.stringify(r));c.id=Date.now();c.name=r.name+" (copy)";c.date=new Date().toISOString().slice(0,10);
+    DB.saved.unshift(c);sv(K.saved,DB.saved);renderSaved($("svSearch").value);toast("Duplicated");
+  });
+  $("svList").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{
+    if(!confirm("Delete this prescription permanently?"))return;
+    DB.saved=DB.saved.filter(x=>x.id!=b.dataset.rm);sv(K.saved,DB.saved);renderSaved($("svSearch").value);toast("Deleted");
+  });
+}
+$("svSearch").oninput=e=>renderSaved(e.target.value);
+
+/* ============ TEMPLATES ============ */
+function collectTemplateFields(){
+  return{cc:[...CC],ccd:$("ccDesc").value,
+  hpi:$("h_hpi").value,pmh:$("h_pmh").value,dhx:$("h_drug").value,fhx:$("h_fam").value,shx:$("h_soc").value,ohx:$("h_obs").value,
+  sg:[...SG],sgn:$("sgNotes").value,
+  dx:$("dx_final").value,dd:$("dx_diff").value,
+  md:[...MD],iv:[...IV],
+  adv:$("adv").value,fup:$("fup").value,ref:$("ref").value};
+}
+function applyTemplateFields(t){
+  CC=[...(t.cc||[])];SG=[...(t.sg||[])];MD=[...(t.md||[])];IV=[...(t.iv||[])];
+  $("ccDesc").value=t.ccd||"";
+  $("h_hpi").value=t.hpi||"";$("h_pmh").value=t.pmh||"";$("h_drug").value=t.dhx||"";
+  $("h_fam").value=t.fhx||"";$("h_soc").value=t.shx||"";$("h_obs").value=t.ohx||"";
+  $("sgNotes").value=t.sgn||"";$("dx_final").value=t.dx||"";$("dx_diff").value=t.dd||"";
+  $("adv").value=t.adv||"";$("fup").value=t.fup||"";$("ref").value=t.ref||"";
+  renderCC();renderSG();renderMD();renderIV();
+}
+$("aSaveTemp").onclick=()=>{
+  const hasContent=CC.length||SG.length||MD.length||IV.length||$("dx_final").value.trim();
+  if(!hasContent){toast("Add some complaints, signs, medicines or a diagnosis first");return}
+  const name=prompt("Name this template (e.g. 'Enteric fever' or 'Acute gastroenteritis'):",$("dx_final").value||"");
+  if(!name||!name.trim())return;
+  const t=Object.assign({id:Date.now(),name:name.trim()},collectTemplateFields());
+  DB.temp.unshift(t);sv(K.temp,DB.temp);
+  fillQuickTemp();toast('Saved as template "'+name.trim()+'"');
+};
+function fillQuickTemp(){
+  const sel=$("quickTemp");
+  sel.innerHTML='<option value="">Load template…</option>'+DB.temp.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");
+}
+$("quickTemp").onchange=e=>{
+  const id=e.target.value;if(!id)return;
+  const t=DB.temp.find(x=>x.id==id);if(!t)return;
+  if(CC.length||SG.length||MD.length||IV.length){
+    if(!confirm('Load template "'+t.name+'"? This replaces the complaints, signs, medicines and investigations currently on the form (patient name and date are kept).'))
+      {e.target.value="";return}
+  }
+  applyTemplateFields(t);e.target.value="";toast('Loaded template "'+t.name+'"');
+};
+function renderTP(){
+  const q=($("tpSearch").value||"").toLowerCase();
+  const list=q?DB.temp.filter(t=>(t.name+" "+t.dx+" "+(t.cc||[]).join(" ")).toLowerCase().includes(q)):DB.temp;
+  $("tpN").textContent=DB.temp.length+" saved";
+  if(!list.length){$("tpList").innerHTML='<div class="empty"><span class="e">🧩</span>'+(q?"Nothing matched that search":"No templates yet — build a case on Write Rx, then use \u0022Save as template\u0022")+'</div>';return}
+  $("tpList").innerHTML=list.map(t=>`<div class="libitem" style="align-items:flex-start;flex-direction:column;gap:8px">
+    <div style="display:flex;width:100%;justify-content:space-between;gap:10px;align-items:flex-start">
+      <div><div style="font-weight:700;font-size:14.5px">${esc(t.name)}</div>
+      ${t.dx?`<div style="font-size:12px;color:#64748b">Dx: ${esc(t.dx)}</div>`:""}</div>
+      <div class="row-acts">
+        <button class="btn bv bxs" data-use="${t.id}">Use this template</button>
+        <button class="btn bo bxs" data-ren="${t.id}">Rename</button>
+        <button class="btn br bxs" data-rm="${t.id}">🗑</button>
+      </div>
+    </div>
+    ${(t.cc||[]).length?`<div>${t.cc.slice(0,6).map(c=>`<span class="bdg b-rose" style="margin:2px">${esc(c)}</span>`).join("")}</div>`:""}
+    ${(t.md||[]).length?`<div>${t.md.slice(0,6).map(m=>`<span class="bdg b-teal" style="margin:2px">${esc(m.n)}</span>`).join("")}${t.md.length>6?`<span style="font-size:11px;color:#94a3b8"> +${t.md.length-6}</span>`:""}</div>`:""}
+    ${(t.iv||[]).length?`<div>${t.iv.slice(0,6).map(v=>`<span class="bdg b-sky" style="margin:2px">${esc(v.n)}</span>`).join("")}${t.iv.length>6?`<span style="font-size:11px;color:#94a3b8"> +${t.iv.length-6}</span>`:""}</div>`:""}
+  </div>`).join("");
+  $("tpList").querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{
+    const t=DB.temp.find(x=>x.id==b.dataset.use);if(!t)return;
+    document.querySelector('.nb[data-p="write"]').click();
+    applyTemplateFields(t);toast('Loaded template "'+t.name+'" — add patient details and save');
+  });
+  $("tpList").querySelectorAll("[data-ren]").forEach(b=>b.onclick=()=>{
+    const t=DB.temp.find(x=>x.id==b.dataset.ren);if(!t)return;
+    const nn=prompt("Rename template:",t.name);if(!nn||!nn.trim())return;
+    t.name=nn.trim();sv(K.temp,DB.temp);fillQuickTemp();renderTP($("tpSearch").value);
+  });
+  $("tpList").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{
+    const t=DB.temp.find(x=>x.id==b.dataset.rm);if(!t)return;
+    if(!confirm('Delete the template "'+t.name+'"?'))return;
+    DB.temp=DB.temp.filter(x=>x.id!=b.dataset.rm);sv(K.temp,DB.temp);fillQuickTemp();renderTP($("tpSearch").value);toast("Deleted");
+  });
+}
+$("tpSearch").oninput=e=>renderTP(e.target.value);
+
+/* ============ DRUG LIBRARY ============ */
+function fillCats(){
+  const dc=$("dlCat"),nd=$("nd_c"),ic=$("ilCat"),ni=$("ni_c");
+  dc.innerHTML='<option value="">All categories</option>'+DRUG_CATS.map(c=>`<option>${esc(c)}</option>`).join("");
+  nd.innerHTML=DRUG_CATS.map(c=>`<option>${esc(c)}</option>`).join("");
+  ic.innerHTML='<option value="">All categories</option>'+INV_CATS.map(c=>`<option>${esc(c)}</option>`).join("");
+  ni.innerHTML=INV_CATS.map(c=>`<option>${esc(c)}</option>`).join("");
+}
+function renderDL(){
+  const q=($("dlSearch").value||"").toLowerCase(),c=$("dlCat").value;
+  let l=DB.drugs;
+  if(c)l=l.filter(d=>d.c===c);
+  if(q)l=l.filter(d=>(d.n+" "+d.c+" "+d.d).toLowerCase().includes(q));
+  $("dlN").textContent=DB.drugs.length+" drugs";
+  if(!l.length){$("dlList").innerHTML='<div class="empty"><span class="e">💊</span>Nothing matched</div>';return}
+  $("dlList").innerHTML=l.map(d=>`<div class="libitem">
+    <div style="flex:1"><div><span class="bdg b-teal" style="margin-right:7px">${esc(d.c.split(" — ")[0])}</span><b>${esc(d.n)}</b></div>
+    <div style="font-size:12px;color:#64748b;margin-top:2px">${esc([d.d,d.f,d.u,d.o].filter(Boolean).join("  ·  "))}</div></div>
+    <div class="row-acts"><button class="btn bt bxs" data-use="${esc(d.n)}">Use</button><button class="btn br bxs" data-rm="${esc(d.n)}">🗑</button></div></div>`).join("");
+  $("dlList").querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{
+    const d=DB.drugs.find(x=>x.n===b.dataset.use);if(!d)return;
+    document.querySelector('.nb[data-p="write"]').click();
+    $("d_name").value=d.n;$("d_dose").value=String(d.d).split(",")[0].trim();$("d_dur").value=d.u||"";$("d_note").value=d.o||"";
+    $("d_name").scrollIntoView({behavior:"smooth",block:"center"});toast("Loaded into the medicine form");
+  });
+  $("dlList").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{
+    if(!confirm("Remove "+b.dataset.rm+" from the library?"))return;
+    DB.drugs=DB.drugs.filter(x=>x.n!==b.dataset.rm);sv(K.drugs,DB.drugs);renderDL();toast("Removed");
+  });
+}
+$("dlSearch").oninput=renderDL;$("dlCat").onchange=renderDL;
+$("dlAddBtn").onclick=()=>{const f=$("dlForm");f.style.display=f.style.display==="none"?"block":"none"};
+$("nd_cancel").onclick=()=>$("dlForm").style.display="none";
+$("nd_save").onclick=()=>{
+  const n=$("nd_n").value.trim();if(!n){toast("Drug name is required");return}
+  DB.drugs.push({n,c:$("nd_c").value,d:$("nd_d").value,f:$("nd_f").value,u:$("nd_u").value,o:$("nd_o").value});
+  DB.drugs.sort((a,b)=>a.n.localeCompare(b.n));sv(K.drugs,DB.drugs);
+  ["nd_n","nd_d","nd_f","nd_u","nd_o"].forEach(i=>$(i).value="");
+  $("dlForm").style.display="none";renderDL();toast("Drug added");
+};
+
+/* ============ INVESTIGATION LIBRARY ============ */
+function renderIL(){
+  const q=($("ilSearch").value||"").toLowerCase(),c=$("ilCat").value;
+  let l=DB.invs;
+  if(c)l=l.filter(i=>i.c===c);
+  if(q)l=l.filter(i=>(i.n+" "+i.c).toLowerCase().includes(q));
+  $("ilN").textContent=DB.invs.length+" tests";
+  if(!l.length){$("ilList").innerHTML='<div class="empty"><span class="e">🔬</span>Nothing matched</div>';return}
+  $("ilList").innerHTML=l.map(i=>`<div class="libitem">
+    <div style="flex:1"><span class="bdg b-sky" style="margin-right:7px">${esc(i.c.split(" — ")[0])}</span>${esc(i.n)}</div>
+    <div class="row-acts"><button class="btn bs bxs" data-use="${esc(i.n)}">Add</button><button class="btn br bxs" data-rm="${esc(i.n)}">🗑</button></div></div>`).join("");
+  $("ilList").querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{addIv(b.dataset.use);toast("Added to prescription")});
+  $("ilList").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{
+    DB.invs=DB.invs.filter(x=>x.n!==b.dataset.rm);sv(K.invs,DB.invs);renderIL();toast("Removed");
+  });
+}
+$("ilSearch").oninput=renderIL;$("ilCat").onchange=renderIL;
+$("ilAddBtn").onclick=()=>{const f=$("ilForm");f.style.display=f.style.display==="none"?"block":"none"};
+$("ni_cancel").onclick=()=>$("ilForm").style.display="none";
+$("ni_save").onclick=()=>{
+  const n=$("ni_n").value.trim();if(!n){toast("Name is required");return}
+  DB.invs.push({n,c:$("ni_c").value});DB.invs.sort((a,b)=>a.n.localeCompare(b.n));sv(K.invs,DB.invs);
+  $("ni_n").value="";$("ilForm").style.display="none";renderIL();toast("Investigation added");
+};
+
+/* ============ SYMPTOM / SIGN LIBRARY ============ */
+function renderSL(){
+  const q=($("slSearch").value||"").toLowerCase();
+  const l=q?DB.symp.filter(s=>s.toLowerCase().includes(q)):DB.symp;
+  $("slN").textContent=DB.symp.length;
+  $("slList").innerHTML=l.map(s=>`<div class="libitem"><span>${esc(s)}</span>
+    <div class="row-acts"><button class="btn br bxs" data-add="${esc(s)}">Use</button><button class="btn bo bxs" data-rm="${esc(s)}">🗑</button></div></div>`).join("")||'<div class="empty">Nothing matched</div>';
+  $("slList").querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{if(!CC.includes(b.dataset.add)){CC.push(b.dataset.add);renderCC();toast("Added to complaints")}});
+  $("slList").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{DB.symp=DB.symp.filter(x=>x!==b.dataset.rm);sv(K.symp,DB.symp);renderSL()});
+}
+function renderGN(){
+  const q=($("gnSearch").value||"").toLowerCase();
+  const l=q?DB.sign.filter(s=>s.toLowerCase().includes(q)):DB.sign;
+  $("gnN").textContent=DB.sign.length;
+  $("gnList").innerHTML=l.map(s=>`<div class="libitem"><span>${esc(s)}</span>
+    <div class="row-acts"><button class="btn bs bxs" data-add="${esc(s)}">Use</button><button class="btn bo bxs" data-rm="${esc(s)}">🗑</button></div></div>`).join("")||'<div class="empty">Nothing matched</div>';
+  $("gnList").querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{if(!SG.includes(b.dataset.add)){SG.push(b.dataset.add);renderSG();toast("Added to signs")}});
+  $("gnList").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{DB.sign=DB.sign.filter(x=>x!==b.dataset.rm);sv(K.sign,DB.sign);renderGN()});
+}
+$("slSearch").oninput=renderSL;$("gnSearch").oninput=renderGN;
+$("slAdd").onclick=()=>{const v=$("slNew").value.trim();if(!v)return;if(!DB.symp.includes(v)){DB.symp.push(v);DB.symp.sort();sv(K.symp,DB.symp)}$("slNew").value="";renderSL();toast("Added")};
+$("gnAdd").onclick=()=>{const v=$("gnNew").value.trim();if(!v)return;if(!DB.sign.includes(v)){DB.sign.push(v);DB.sign.sort();sv(K.sign,DB.sign)}$("gnNew").value="";renderGN();toast("Added")};
+
+/* ============ CONDITIONS ============ */
+function renderKB(){
+  const q=($("kbSearch").value||"").toLowerCase();
+  const l=q?KB.filter(c=>(c.dx+" "+c.sys+" "+c.kw.join(" ")).toLowerCase().includes(q)):KB;
+  $("kbN").textContent=KB.length+" conditions";
+  $("kbList").innerHTML=l.map((c,i)=>`<details class="libitem" style="display:block">
+    <summary style="cursor:pointer;font-weight:700;font-size:14px;list-style:none">
+      <span class="bdg b-violet" style="margin-right:8px">${esc(c.sys)}</span>${esc(c.dx)}</summary>
+    <div style="margin-top:10px;font-size:12.5px;line-height:1.7">
+      <div style="margin-bottom:7px"><b style="color:#e11d48">Trigger findings:</b> ${c.kw.map(k=>`<span class="bdg b-gray" style="margin:2px">${esc(k)}</span>`).join("")}</div>
+      <div style="margin-bottom:7px"><b style="color:#0284c7">Investigations:</b> ${c.inv.map(esc).join(" · ")}</div>
+      <div style="margin-bottom:7px"><b style="color:#0d9488">Drug plan:</b><br>${c.rx.map(d=>`&nbsp;&nbsp;• <b>${esc(d.n)}</b> ${esc(d.d)} — ${esc([d.f,d.u,d.r].filter(Boolean).join(", "))} <i style="color:#64748b">${esc(d.w||"")}</i>`).join("<br>")}</div>
+      <div><b style="color:#d97706">Advice:</b> ${esc(c.adv)}</div>
+    </div></details>`).join("")||'<div class="empty">Nothing matched</div>';
+}
+$("kbSearch").oninput=renderKB;
+
+/* ============ SETTINGS ============ */
+const SF=["name","deg","desig","inst","reg","ph","chamber","addr","hours","foot","key","model"];
+function loadSet(){
+  const s=DB.set;SF.forEach(f=>{if($("s_"+f)&&s[f]!=null)$("s_"+f).value=s[f]});
+  $("s_useai").checked=!!s.useai;
+  $("hdrDoc").innerHTML=s.name?esc(s.name)+(s.deg?"<br>"+esc(s.deg):""):"Set up your profile →";
+  if($("showUID"))$("showUID").value=UID;
+  const lb=$("linkDevBtn");
+  if(lb)lb.onclick=async()=>{
+    const newUID=($("linkUID").value||"").trim();
+    if(!newUID){toast("Paste a device ID first");return}
+    if(!confirm("Load all data from the other device? Your current data on this device will be replaced."))return;
+    setSyncUI("syncing");
+    const types=["drugs","invs","symp","sign","saved","set","temp"];
+    let pulled=0;
+    await Promise.all(types.map(async t=>{
+      try{
+        const res=await fetch(SB_URL+"/rest/v1/rxpad_data?user_id=eq."+encodeURIComponent(newUID)+"&type=eq."+t+"&select=payload",{headers:SB_HDR});
+        if(!res.ok)return;
+        const rows=await res.json();
+        if(rows.length){DB[t]=rows[0].payload;sv(K[t],rows[0].payload);pulled++}
+      }catch(e){}
+    }));
+    if(pulled===0){toast("No data found for that device ID — check the ID and try again");setSyncUI("idle");return}
+    localStorage.setItem("rxpad_uid",newUID);
+    toast("✅ Loaded data from other device ("+pulled+" categories)");
+    setSyncUI("idle");
+    loadSet();fillQuickTemp();renderDL();renderIL();renderSaved();renderTP();renderSL();renderGN();
+    $("linkUID").value="";
+  };
+}
+$("setSave").onclick=()=>{
+  const s={};SF.forEach(f=>{if($("s_"+f))s[f]=$("s_"+f).value.trim()});
+  s.useai=$("s_useai").checked;
+  DB.set=s;sv(K.set,s);loadSet();toast("Profile saved");
+};
+$("expBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(DB,null,1)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rxpad-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();toast("Backup downloaded");
+};
+$("impBtn").onclick=()=>$("impFile").click();
+$("impFile").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const j=JSON.parse(rd.result);
+      if(!j.drugs&&!j.saved)throw new Error("Not a valid backup");
+      if(!confirm("This will replace all current data. Continue?"))return;
+      DB=Object.assign(DB,j);
+      Object.keys(K).forEach(k=>sv(K[k],DB[k]));
+      loadSet();renderDL();renderIL();renderSaved();toast("Backup restored");
+    }catch(err){toast("Could not read that file")}
+  };
+  rd.readAsText(f);e.target.value="";
+};
+$("wipeBtn").onclick=()=>{
+  if(!confirm("Delete ALL data including saved prescriptions and custom libraries? This cannot be undone."))return;
+  if(!confirm("Are you absolutely sure?"))return;
+  Object.values(K).forEach(k=>localStorage.removeItem(k));location.reload();
+};
+
+/* ============ PRINT SHEET ============ */
+function printRx(r){
+  const s=DB.set;
+  const dt=r.date?new Date(r.date+"T00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):"";
+  const water='<svg class="rxp-water" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M25 15 v25 a15 15 0 0 0 30 0 v-25 M40 15 v20 M25 40 a20 20 0 0 0 40 3 v-8 M65 43 a8 8 0 1 0 0.1 0" fill="none" stroke="#0d9488" stroke-width="3"/></svg>';
+
+  const left=[];
+  if((r.cc||[]).length||r.ccd)left.push(`<div class="rxp-sec">Chief complaints</div><div class="rxp-li">${esc((r.cc||[]).join(", "))}${r.ccd?"<br>"+esc(r.ccd):""}</div>`);
+  const v=r.vit||{};
+  const vs=[v.pr?"PR "+v.pr:"",v.bp?"BP "+v.bp:"",v.tm?"Temp "+v.tm:"",v.rr?"RR "+v.rr:"",v.sp?"SpO₂ "+v.sp+"%":""].filter(Boolean).join("  |  ");
+  if((r.sg||[]).length||r.sgn||vs)left.push(`<div class="rxp-sec">O/E</div>${vs?`<div class="rxp-li"><b>${esc(vs)}</b></div>`:""}<div class="rxp-li">${esc([(r.sg||[]).join(", "),r.sgn].filter(Boolean).join(" — "))}</div>`);
+  if(r.dx)left.push(`<div class="rxp-sec">Diagnosis</div><div class="rxp-li"><b>${esc(r.dx)}</b>${r.dd?"<br><i>D/D: "+esc(r.dd)+"</i>":""}</div>`);
+  if((r.iv||[]).length)left.push(`<div class="rxp-sec">Investigations</div>${r.iv.map((x,i)=>`<div class="rxp-li">${i+1}. ${esc(x.n)}</div>`).join("")}`);
+  if(r.adv)left.push(`<div class="rxp-sec">Advice</div><div class="rxp-li">${esc(r.adv)}</div>`);
+  if(r.fup)left.push(`<div class="rxp-sec">Follow-up</div><div class="rxp-li">${esc(r.fup)}</div>`);
+  if(r.ref)left.push(`<div class="rxp-sec">Referral</div><div class="rxp-li">${esc(r.ref)}</div>`);
+
+  $("sheet").innerHTML=`<div class="rxp">
+  <div class="rxp-plaques">
+    <div class="rxp-plaque doc">
+      <div class="rxp-pname">${esc(s.name||"Doctor's name")}</div>
+      <div class="rxp-pdeg">${[s.deg,s.desig,s.reg].filter(Boolean).map(esc).join("<br>")}</div>
+    </div>
+    <div class="rxp-plaque hosp">
+      <div class="rxp-pname">${esc(s.chamber||s.inst||"Chamber / hospital")}</div>
+      <div class="rxp-pdeg">${[s.inst&&s.inst!==s.chamber?s.inst:"",s.addr,s.hours,s.ph?"Mobile: "+s.ph:""].filter(Boolean).map(esc).join("<br>")}</div>
+    </div>
+  </div>
+  <div class="rxp-patient">
+    <span><b>Name:</b> ${esc(r.name||"—")}</span>
+    <span><b>Age:</b> ${esc(r.age||"—")}</span>
+    <span><b>Sex:</b> ${esc(r.sex||"—")}</span>
+  </div>
+  <div class="rxp-patient r2">
+    <span><b>Date:</b> ${esc(dt)}</span>
+    <span><b>Weight:</b> ${esc(r.wt||"—")}</span>
+    <span><b>ID:</b> ${esc(r.pid||"—")}</span>
+  </div>
+  <div class="rxp-body">
+    <div class="rxp-left">${left.join("")||'<div class="rxp-li"><i>No clinical notes</i></div>'}</div>
+    <div class="rxp-right">
+      ${water}
+      <div class="rxp-sym">℞</div>
+      ${(r.md||[]).map((m,i)=>`<div class="rxp-d"><b>${i+1}. ${esc(m.n)}</b> ${esc(m.d||"")}
+        <span>${esc([m.f,m.u,m.r,m.t,m.o].filter(Boolean).join("  ·  "))}</span></div>`).join("")||'<div class="rxp-li"><i>No medicine prescribed</i></div>'}
+    </div>
+  </div>
+  <div class="rxp-sigwrap"><div class="rxp-sig">Signature</div></div>
+</div>`;
+  window.print();
+}
+$("aPrint").onclick=()=>{
+  const r=collect();
+  if(!r.name){toast("Patient name is required before printing");$("p_name").focus();return}
+  printRx(r);
+};
+
+/* ============ DRIVE-FOLDER SYNC (File System Access API) ============ */
+let driveHandle=null,driveTimer=null;
+function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open("rxpad_fs",1);r.onupgradeneeded=()=>r.result.createObjectStore("h");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbSet(k,v){const db=await idbOpen();return new Promise((res,rej)=>{const t=db.transaction("h","readwrite");t.objectStore("h").put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
+async function idbGet(k){const db=await idbOpen();return new Promise((res,rej)=>{const t=db.transaction("h","readonly");const q=t.objectStore("h").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+
+function driveSupported(){return "showSaveFilePicker" in window}
+function setDriveStatus(msg,ok){
+  const el=$("driveStatus");if(!el)return;
+  el.textContent=msg;
+  el.style.background=ok?"#dcfce7":"#f8fafc";el.style.borderColor=ok?"#bbf7d0":"var(--line)";el.style.color=ok?"#166534":"var(--ink)";
+}
+async function driveWrite(){
+  if(!driveHandle)return;
+  try{
+    const perm=await driveHandle.queryPermission({mode:"readwrite"});
+    if(perm!=="granted"){const req=await driveHandle.requestPermission({mode:"readwrite"});if(req!=="granted")return}
+    const w=await driveHandle.createWritable();
+    await w.write(JSON.stringify(DB,null,1));await w.close();
+    setDriveStatus("Linked — synced "+new Date().toLocaleTimeString(),true);
+  }catch(e){setDriveStatus("Linked, but the last sync failed: "+e.message,false)}
+}
+function scheduleDriveSync(){
+  if(!driveHandle)return;
+  clearTimeout(driveTimer);driveTimer=setTimeout(driveWrite,1200);
+}
+$("driveLink").onclick=async()=>{
+  if(!driveSupported()){toast("This needs Chrome or Edge on a computer — not supported here");return}
+  try{
+    const handle=await window.showSaveFilePicker({suggestedName:"rxpad-data.json",types:[{description:"Rx Pad data",accept:{"application/json":[".json"]}}]});
+    driveHandle=handle;await idbSet("driveHandle",handle);
+    $("driveSyncNow").style.display="inline-flex";$("driveLoad").style.display="inline-flex";
+    setDriveStatus("Linked to "+handle.name+" — pick this same file on other devices",true);
+    await driveWrite();
+    toast("Linked. Make sure this file sits inside your Drive-synced folder.");
+  }catch(e){if(e.name!=="AbortError")toast("Could not link a file: "+e.message)}
+};
+$("driveSyncNow").onclick=driveWrite;
+$("driveLoad").onclick=async()=>{
+  if(!driveHandle){toast("Link a file first");return}
+  try{
+    const perm=await driveHandle.queryPermission({mode:"read"});
+    if(perm!=="granted"){const req=await driveHandle.requestPermission({mode:"read"});if(req!=="granted"){toast("Permission needed to read the file");return}}
+    const file=await driveHandle.getFile();const txt=await file.text();
+    const j=JSON.parse(txt);
+    if(!j.drugs&&!j.saved){toast("That file doesn't look like Rx Pad data");return}
+    if(!confirm("Load data from the linked file? This replaces everything currently on this device."))return;
+    DB=Object.assign(DB,j);Object.keys(K).forEach(k=>sv(K[k],DB[k]));
+    loadSet();fillQuickTemp();renderDL();renderIL();renderSaved();renderTP();renderSL();renderGN();
+    toast("Loaded from linked file");
+  }catch(e){toast("Could not read that file: "+e.message)}
+};
+async function initDriveSync(){
+  if(!driveSupported()){setDriveStatus("Your browser doesn't support this — use manual backup instead",false);$("driveLink").disabled=true;return}
+  try{
+    const handle=await idbGet("driveHandle");
+    if(handle){
+      driveHandle=handle;
+      const perm=await handle.queryPermission({mode:"readwrite"});
+      $("driveSyncNow").style.display="inline-flex";$("driveLoad").style.display="inline-flex";
+      if(perm==="granted")setDriveStatus("Linked to "+handle.name,true);
+      else setDriveStatus("Linked to "+handle.name+" — tap Sync now to reconfirm access",false);
+    }
+  }catch(e){}
+}
+
+/* ============ SUPABASE CLOUD SYNC ============ */
+const SB_URL="https://gcfetfjkoiubvlxiiocy.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjZmV0Zmprb2l1YnZseGlpb2N5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyMzQ5ODMsImV4cCI6MjEwMDgxMDk4M30.1p2l9IPieNeQGGMrXcDSGWyDS90aZn72YMrljwpjgYE";
+const SB_HDR={"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Prefer":"resolution=merge-duplicates"};
+
+function getUserId(){
+  let uid=localStorage.getItem("rxpad_uid");
+  if(!uid){uid="u_"+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("rxpad_uid",uid)}
+  return uid;
+}
+const UID=getUserId();
+
+let syncTimer=null,syncStatus="idle";
+function setSyncUI(state,msg){
+  syncStatus=state;
+  const el=$("syncDot");if(!el)return;
+  const labels={idle:"☁️ Synced",syncing:"🔄 Syncing…",error:"⚠️ Sync failed",offline:"📴 Offline"};
+  el.textContent=labels[state]||"☁️";
+  el.style.color={idle:"#0d9488",syncing:"#7c3aed",error:"#e11d48",offline:"#d97706"}[state]||"#0d9488";
+  if(msg)el.title=msg;
+}
+
+async function sbUpsert(type,payload){
+  if(!navigator.onLine){setSyncUI("offline");return false}
+  try{
+    const res=await fetch(SB_URL+"/rest/v1/rxpad_data",{
+      method:"POST",
+      headers:SB_HDR,
+      body:JSON.stringify({id:UID+"_"+type,user_id:UID,type,payload,updated_at:new Date().toISOString()})
+    });
+    if(!res.ok){const t=await res.text();throw new Error(t)}
+    return true;
+  }catch(e){setSyncUI("error","Last sync failed: "+e.message);return false}
+}
+
+async function sbFetch(type){
+  try{
+    const res=await fetch(SB_URL+"/rest/v1/rxpad_data?user_id=eq."+encodeURIComponent(UID)+"&type=eq."+type+"&select=payload",{headers:SB_HDR});
+    if(!res.ok)throw new Error(await res.text());
+    const rows=await res.json();
+    return rows.length?rows[0].payload:null;
+  }catch(e){return null}
+}
+
+async function pushAllToCloud(){
+  setSyncUI("syncing");
+  const types=["drugs","invs","symp","sign","saved","set","temp"];
+  const results=await Promise.all(types.map(t=>sbUpsert(t,DB[t])));
+  if(results.every(Boolean))setSyncUI("idle");
+  else setSyncUI("error");
+}
+
+async function pullFromCloud(){
+  setSyncUI("syncing");
+  const types=["drugs","invs","symp","sign","saved","set","temp"];
+  let pulled=0;
+  await Promise.all(types.map(async t=>{
+    const d=await sbFetch(t);
+    if(d!=null){DB[t]=d;sv(K[t],d);pulled++}
+  }));
+  setSyncUI("idle");
+  return pulled;
+}
+
+function scheduleSync(){
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>{
+    setSyncUI("syncing");
+    const types=["drugs","invs","symp","sign","saved","set","temp"];
+    Promise.all(types.map(t=>sbUpsert(t,DB[t]))).then(r=>r.every(Boolean)?setSyncUI("idle"):setSyncUI("error"));
+  },1500);
+}
+
+const _origSv=sv;
+// override sv to also trigger cloud sync
+const sv2=(k,v)=>{const ok=_origSv(k,v);scheduleSync();return ok};
+// patch all sv calls — we rebind sv globally
+Object.defineProperty(window,"sv",{get:()=>sv2,set:()=>{}});
+
+window.addEventListener("online",()=>{setSyncUI("syncing");pushAllToCloud()});
+window.addEventListener("offline",()=>setSyncUI("offline"));
+
+async function initCloudSync(){
+  setSyncUI("syncing");
+  if(!navigator.onLine){setSyncUI("offline");return}
+  const pulled=await pullFromCloud();
+  if(pulled>0){
+    loadSet();fillQuickTemp();renderDL();renderIL();renderSaved();renderTP();renderSL();renderGN();
+    toast("☁️ Data loaded from cloud");
+  }
+  setSyncUI("idle");
+}
+
+/* ============ THEME ============ */
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  try{localStorage.setItem("rxp_theme",t)}catch(e){}
+  $("themeToggle").textContent=t==="dark"?"☀️":"🌙";
+}
+$("themeToggle").onclick=()=>{
+  const cur=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";
+  applyTheme(cur==="dark"?"light":"dark");
+};
+applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light");
+
+/* ============ INIT ============ */
+fillCats();loadSet();fillQuickTemp();initDriveSync();initCloudSync();
+$("p_date").value=new Date().toISOString().slice(0,10);
+renderCC();renderSG();renderMD();renderIV();renderDL();renderIL();renderSL();renderGN();renderKB();renderSaved();
+
+</script>
+</body>
+</html>
